@@ -22,10 +22,10 @@ public class OrderService {
         double firstAsks = orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
         if (bidsSum > 10 || asksSum > 10) {
             log.info("Bids - " + orderBook.getBids().toString());
-            log.info("Bids amount - " + BittrexOrderBookService.round(bidsSum,2));
-            log.info("First 3 Bids - " + BittrexOrderBookService.round(firstBids,2));
             log.info("Asks - " + orderBook.getAsks().toString());
+            log.info("Bids amount - " + BittrexOrderBookService.round(bidsSum,2));
             log.info("Asks amount - " + BittrexOrderBookService.round(asksSum,2));
+            log.info("First 3 Bids - " + BittrexOrderBookService.round(firstBids,2));
             log.info("First 3 Asks - " + BittrexOrderBookService.round(firstAsks,2));
             log.info("---------------------------------------------");
         }
