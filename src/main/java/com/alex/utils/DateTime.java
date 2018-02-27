@@ -1,28 +1,28 @@
 package com.alex.utils;
 
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 public class DateTime {
 
     public static void main(String[] args) throws ParseException {
-        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss.SSS");
-        sdf.setTimeZone(TimeZone.getTimeZone("GMT"));
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+        String str = "2018-02-27T10:50:49.237";
+        Date date1 = sdf.parse(str);
+        System.out.println(date1);
+        System.out.println(date1.getTime());
 
-//        Date date = sdf.parse(dateInString);
-//
-//        System.out.println(dateInString);
-        System.out.println("Date - Time in milliseconds : " + sdf.format(new Date()));
+        long date = LocalDateTime.now(ZoneId.of("GMT-0")).atZone(ZoneId.of("GMT-0")).toInstant().toEpochMilli();
 
-//        gmtDateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
-//
-//        String str = gmtDateFormat.format(new Date());
-//        Date date = gmtDateFormat.parse(str);
-//        Calendar calendar = Calendar.getInstance();
-//        calendar.setTime(date);
-//        System.out.println("Current Date and Time in GMT time zone: " + str);
+        System.out.println(date);
+
     }
 }
