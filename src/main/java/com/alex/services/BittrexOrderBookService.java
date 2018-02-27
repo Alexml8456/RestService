@@ -1,7 +1,9 @@
 package com.alex.services;
 
 import com.alex.model.FreeOrder;
+import com.alex.model.MarketHistory;
 import com.alex.model.OrderBook;
+import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -56,6 +58,27 @@ public class BittrexOrderBookService {
             log.error("Order book can't be updated");
         }
         return orderBook;
+    }
+
+    private MarketHistory getMarketHistory(String instrument, int minutes) {
+        String resUrl = publicApi.concat("getmarkethistory/?")
+                .concat("market=").concat(instrument);
+
+        JSONObject history = new JSONObject(restTemplate.getForObject(resUrl, String.class));
+
+        MarketHistory marketHistory = new MarketHistory();
+        try {
+            JSONArray tradeHistory = history.getJSONArray("result");
+
+            for (int i = 0; i < tradeHistory.length(); i++) {
+                String time = tradeHistory.getJSONObject(i).get("TimeStamp").toString();
+                boolean condition = DateTime.GMTTimeConverter(time) + 1000 * 60 * minutes >= DateTime.getGMTTimeMillis();
+            }
+
+        } catch (Exception e) {
+            log.error("Order book can't be updated");
+        }
+        return marketHistory;
     }
 
 

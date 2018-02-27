@@ -1,16 +1,14 @@
 package com.alex;
 
 import com.alex.model.MarketHistory;
-import com.alex.model.OrderBook;
 import com.alex.model.TradeQuantity;
+import com.alex.utils.DateTime;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 
-import java.io.*;
+import java.io.FileReader;
 import java.math.BigDecimal;
-import java.util.Iterator;
-import java.util.Set;
 
 
 public class ReadTextFile {
@@ -31,12 +29,16 @@ public class ReadTextFile {
             JSONArray history = (JSONArray) jsonObject.get("result");
 
             for (Object aHistory : history) {
-                if (((JSONObject) aHistory).get("OrderType").toString().equals("BUY")) {
-                    BigDecimal price = BigDecimal.valueOf((Double) ((JSONObject) aHistory).get("Quantity"));
-                    marketHistory.getBuys().add(new TradeQuantity(price));
-                } else if (((JSONObject) aHistory).get("OrderType").toString().equals("SELL")) {
-                    BigDecimal price = BigDecimal.valueOf((Double) ((JSONObject) aHistory).get("Quantity"));
-                    marketHistory.getSells().add(new TradeQuantity(price));
+                String time = ((JSONObject) aHistory).get("TimeStamp").toString();
+                boolean condition = DateTime.GMTTimeConverter(time) + 1000 * 60 * 10 >= DateTime.getGMTTimeMillis();
+                if (condition) {
+                    if (((JSONObject) aHistory).get("OrderType").toString().equals("BUY")) {
+                        BigDecimal price = BigDecimal.valueOf((Double) ((JSONObject) aHistory).get("Quantity"));
+                        marketHistory.getBuys().add(new TradeQuantity(price));
+                    } else if (((JSONObject) aHistory).get("OrderType").toString().equals("SELL")) {
+                        BigDecimal price = BigDecimal.valueOf((Double) ((JSONObject) aHistory).get("Quantity"));
+                        marketHistory.getSells().add(new TradeQuantity(price));
+                    }
                 }
             }
 
