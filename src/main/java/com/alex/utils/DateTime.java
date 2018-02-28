@@ -6,28 +6,25 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.TimeZone;
 
 @Slf4j
 public class DateTime {
 
-    public static long getGMTTimeMillis() {
-        return LocalDateTime.now(ZoneId.of("GMT-0")).atZone(ZoneId.of("GMT-0")).toInstant().toEpochMilli();
+    public static LocalDateTime getGMTTimeMillis() {
+        return LocalDateTime.now(ZoneId.of("GMT-0"));
     }
 
-    public static long GMTTimeConverter(String time) {
-        long date = 0;
-        try {
-            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
-            sdf.setTimeZone(TimeZone.getTimeZone("UTC"));
-            if (time.length() > 19) {
-                date = sdf.parse(time).getTime();
-            } else {
-                date = sdf.parse(time.concat(".0")).getTime();
-            }
-        } catch (ParseException e) {
-            log.error(String.valueOf(e));
+    public static LocalDateTime GMTTimeConverter(String time) {
+        if (time.length() <= 19) {
+            time = time.concat(".000");
         }
-        return date;
+        if (time.length() > 19 && time.length() < 23) {
+            for (int i = 0; i <= 23 - time.length(); i++) {
+                time = time.concat("0");
+            }
+        }
+        return LocalDateTime.parse(time, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS"));
     }
 }

@@ -1,5 +1,6 @@
 package com.alex.services;
 
+import com.alex.model.MarketHistory;
 import com.alex.model.OrderBook;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,9 +14,11 @@ public class OrderService {
     @Autowired
     private BittrexOrderBookService bittrexOrderBookService;
 
+    private String instrument = "USDT-BTC";
+
     @Scheduled(fixedRate = 60000)
     public void getBook() {
-        OrderBook orderBook = bittrexOrderBookService.getOrderBook("USDT-BTC");
+        OrderBook orderBook = bittrexOrderBookService.getOrderBook(instrument);
         double bidsSum = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
         double asksSum = orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
         double firstBids = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
@@ -23,11 +26,21 @@ public class OrderService {
         if (bidsSum > 10 || asksSum > 10) {
             log.info("Bids - " + orderBook.getBids().toString());
             log.info("Asks - " + orderBook.getAsks().toString());
-            log.info("Bids amount - " + BittrexOrderBookService.round(bidsSum,2));
-            log.info("Asks amount - " + BittrexOrderBookService.round(asksSum,2));
-            log.info("First 3 Bids - " + BittrexOrderBookService.round(firstBids,2));
-            log.info("First 3 Asks - " + BittrexOrderBookService.round(firstAsks,2));
+            log.info("Bids amount - " + BittrexOrderBookService.round(bidsSum, 2));
+            log.info("Asks amount - " + BittrexOrderBookService.round(asksSum, 2));
+            log.info("First 3 Bids - " + BittrexOrderBookService.round(firstBids, 2));
+            log.info("First 3 Asks - " + BittrexOrderBookService.round(firstAsks, 2));
             log.info("---------------------------------------------");
         }
+    }
+
+    @Scheduled(cron = "30 1/2 * * * ?")
+    public void getMarketHistory() {
+        MarketHistory marketHistory = bittrexOrderBookService.getMarketHistory(instrument, 2);
+        double buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
+        double sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
+        log.info("Buy amounts - " + BittrexOrderBookService.round(buySum, 2));
+        log.info("Sell amounts - " + BittrexOrderBookService.round(sellSum, 2));
+        log.info("---------------------------------------------");
     }
 }

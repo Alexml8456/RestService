@@ -3,6 +3,7 @@ package com.alex.services;
 import com.alex.model.FreeOrder;
 import com.alex.model.MarketHistory;
 import com.alex.model.OrderBook;
+import com.alex.model.TradeQuantity;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -14,6 +15,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 
 @Service
@@ -60,7 +62,7 @@ public class BittrexOrderBookService {
         return orderBook;
     }
 
-    private MarketHistory getMarketHistory(String instrument, int minutes) {
+    private MarketHistory updateMarketHistory(String instrument, int minutes) {
         String resUrl = publicApi.concat("getmarkethistory/?")
                 .concat("market=").concat(instrument);
 
@@ -72,11 +74,23 @@ public class BittrexOrderBookService {
 
             for (int i = 0; i < tradeHistory.length(); i++) {
                 String time = tradeHistory.getJSONObject(i).get("TimeStamp").toString();
-                boolean condition = DateTime.GMTTimeConverter(time) + 1000 * 60 * minutes >= DateTime.getGMTTimeMillis();
+                LocalDateTime gmtTimeNow = DateTime.getGMTTimeMillis();
+                LocalDateTime gmtTimeConverted = DateTime.GMTTimeConverter(time);
+
+                boolean condition = gmtTimeConverted.plusMinutes(minutes).plusSeconds(10).isAfter(gmtTimeNow);
+                if (condition) {
+                    if (tradeHistory.getJSONObject(i).getString("OrderType").equals("BUY")) {
+                        BigDecimal buyTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("Quantity"));
+                        marketHistory.getBuys().add(new TradeQuantity(buyTrade));
+                    } else if (tradeHistory.getJSONObject(i).getString("OrderType").equals("SELL")) {
+                        BigDecimal sellTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("Quantity"));
+                        marketHistory.getSells().add(new TradeQuantity(sellTrade));
+                    }
+                }
             }
 
         } catch (Exception e) {
-            log.error("Order book can't be updated");
+            log.error("Market history can't be updated");
         }
         return marketHistory;
     }
@@ -97,6 +111,23 @@ public class BittrexOrderBookService {
             throw new IllegalStateException("Order book is not reachable");
         }
         return book;
+    }
+
+    public MarketHistory getMarketHistory(String instrument, int minutes) {
+        MarketHistory marketHistory = null;
+        int counter = 0;
+        while (marketHistory == null && counter < 5) {
+            try {
+                marketHistory = updateMarketHistory(instrument,minutes);
+            } catch (Exception e) {
+                await();
+                counter++;
+            }
+        }
+        if (marketHistory == null) {
+            throw new IllegalStateException("Market history is not reachable");
+        }
+        return marketHistory;
     }
 
     private void await() {
