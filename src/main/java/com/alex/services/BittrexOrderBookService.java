@@ -70,14 +70,15 @@ public class BittrexOrderBookService {
 
         MarketHistory marketHistory = new MarketHistory();
         try {
+
             JSONArray tradeHistory = history.getJSONArray("result");
+            LocalDateTime gmtTimeNow = DateTime.getGMTTimeMillis();
 
             for (int i = 0; i < tradeHistory.length(); i++) {
                 String time = tradeHistory.getJSONObject(i).get("TimeStamp").toString();
-                LocalDateTime gmtTimeNow = DateTime.getGMTTimeMillis();
                 LocalDateTime gmtTimeConverted = DateTime.GMTTimeConverter(time);
 
-                boolean condition = gmtTimeConverted.plusMinutes(minutes).plusSeconds(10).isAfter(gmtTimeNow);
+                boolean condition = gmtTimeConverted.plusMinutes(minutes).isAfter(gmtTimeNow);
                 if (condition) {
                     if (tradeHistory.getJSONObject(i).getString("OrderType").equals("BUY")) {
                         BigDecimal buyTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("Quantity"));
@@ -118,7 +119,7 @@ public class BittrexOrderBookService {
         int counter = 0;
         while (marketHistory == null && counter < 5) {
             try {
-                marketHistory = updateMarketHistory(instrument,minutes);
+                marketHistory = updateMarketHistory(instrument, minutes);
             } catch (Exception e) {
                 await();
                 counter++;
