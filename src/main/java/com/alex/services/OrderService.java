@@ -26,10 +26,10 @@ public class OrderService {
         if (bidsSum > 10 || asksSum > 10) {
             log.info("Bids - " + orderBook.getBids().toString());
             log.info("Asks - " + orderBook.getAsks().toString());
-            log.info("Bids amount - " + BittrexOrderBookService.round(bidsSum, 2));
-            log.info("Asks amount - " + BittrexOrderBookService.round(asksSum, 2));
-            log.info("First 3 Bids - " + BittrexOrderBookService.round(firstBids, 2));
-            log.info("First 3 Asks - " + BittrexOrderBookService.round(firstAsks, 2));
+            log.info("Bids amount(Sell) - " + BittrexOrderBookService.round(bidsSum, 2));
+            log.info("Asks amount(Buy) - " + BittrexOrderBookService.round(asksSum, 2));
+            log.info("First 3 Bids(Sell) - " + BittrexOrderBookService.round(firstBids, 2));
+            log.info("First 3 Asks(Buy) - " + BittrexOrderBookService.round(firstAsks, 2));
             log.info("---------------------------------------------");
         }
     }
@@ -39,8 +39,8 @@ public class OrderService {
         MarketHistory marketHistory = bittrexOrderBookService.getMarketHistory(instrument, 2);
         double buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
         double sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
-        log.info("Buy amounts - " + BittrexOrderBookService.round(buySum, 2));
-        log.info("Sell amounts - " + BittrexOrderBookService.round(sellSum, 2));
+        log.info("Buy amounts(Asks) - " + BittrexOrderBookService.round(buySum, 2));
+        log.info("Sell amounts(Bids) - " + BittrexOrderBookService.round(sellSum, 2));
         log.info("---------------------------------------------");
     }
 }
