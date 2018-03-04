@@ -16,7 +16,7 @@ public class OrderService {
 
     private String instrument = "USDT-BTC";
 
-    @Scheduled(cron = "0 * * ? * *")
+    @Scheduled(cron = "20 * * ? * *")
     public void getBook() {
         OrderBook orderBook = bittrexOrderBookService.getOrderBook(instrument);
         double bidsSum = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
@@ -34,13 +34,15 @@ public class OrderService {
         }
     }
 
-    @Scheduled(cron = "30 1/2 * * * ?")
+    @Scheduled(cron = "50 1/2 * * * ?")
     public void getMarketHistory() {
         MarketHistory marketHistory = bittrexOrderBookService.getMarketHistory(instrument, 2);
         double buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
         double sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
-        log.info("Buy amounts(Asks) - " + BittrexOrderBookService.round(buySum, 2));
-        log.info("Sell amounts(Bids) - " + BittrexOrderBookService.round(sellSum, 2));
-        log.info("---------------------------------------------");
+        if (buySum > 1 || sellSum > 1) {
+            log.info("Buy amounts(Asks) - " + BittrexOrderBookService.round(buySum, 2));
+            log.info("Sell amounts(Bids) - " + BittrexOrderBookService.round(sellSum, 2));
+            log.info("---------------------------------------------");
+        }
     }
 }
