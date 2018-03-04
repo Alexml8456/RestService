@@ -16,7 +16,7 @@ public class OrderService {
 
     private String instrument = "USDT-BTC";
 
-    @Scheduled(fixedRate = 60000)
+    @Scheduled(cron = "0 * * ? * *")
     public void getBook() {
         OrderBook orderBook = bittrexOrderBookService.getOrderBook(instrument);
         double bidsSum = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
