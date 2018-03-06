@@ -11,6 +11,9 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class OrderService {
 
+    private double allSellAmount;
+    private double allBuyAmount;
+
     @Autowired
     private BittrexOrderBookService bittrexOrderBookService;
 
@@ -39,9 +42,13 @@ public class OrderService {
         MarketHistory marketHistory = bittrexOrderBookService.getMarketHistory(instrument, 2);
         double buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
         double sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
+        allSellAmount = allSellAmount + sellSum;
+        allBuyAmount = allBuyAmount + buySum;
         if (buySum > 1 || sellSum > 1) {
             log.info("Buy amounts(Asks) - " + BittrexOrderBookService.round(buySum, 2));
             log.info("Sell amounts(Bids) - " + BittrexOrderBookService.round(sellSum, 2));
+            log.info("All buy amounts - " + BittrexOrderBookService.round(allBuyAmount, 2));
+            log.info("All sell amounts - " + BittrexOrderBookService.round(allSellAmount, 2));
             log.info("---------------------------------------------");
         }
     }
