@@ -27,13 +27,14 @@ public class OrderService {
         double firstBids = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
         double firstAsks = orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
         if (bidsSum > 10 || asksSum > 10) {
+            log.info("--------------------Last orders-------------------------");
             log.info("Bids - " + orderBook.getBids().toString());
             log.info("Asks - " + orderBook.getAsks().toString());
             log.info("Bids amount(Sell) - " + BittrexOrderBookService.round(bidsSum, 2));
             log.info("Asks amount(Buy) - " + BittrexOrderBookService.round(asksSum, 2));
             log.info("First 3 Bids(Sell) - " + BittrexOrderBookService.round(firstBids, 2));
             log.info("First 3 Asks(Buy) - " + BittrexOrderBookService.round(firstAsks, 2));
-            log.info("---------------------------------------------");
+            log.info("-------------------------------------------------------");
         }
     }
 
@@ -45,11 +46,12 @@ public class OrderService {
         allSellAmount = allSellAmount + sellSum;
         allBuyAmount = allBuyAmount + buySum;
         if (buySum > 1 || sellSum > 1) {
-            log.info("Buy amounts(Asks) - " + BittrexOrderBookService.round(buySum, 2));
-            log.info("Sell amounts(Bids) - " + BittrexOrderBookService.round(sellSum, 2));
+            log.info("-------------------Last trade history--------------------------");
             log.info("All buy amounts - " + BittrexOrderBookService.round(allBuyAmount, 2));
             log.info("All sell amounts - " + BittrexOrderBookService.round(allSellAmount, 2));
-            log.info("---------------------------------------------");
+            log.info("Buy amounts(Asks) - " + BittrexOrderBookService.round(buySum, 2));
+            log.info("Sell amounts(Bids) - " + BittrexOrderBookService.round(sellSum, 2));
+            log.info("---------------------------------------------------------------");
         }
     }
 }
