@@ -13,4 +13,5 @@ import java.math.BigDecimal;
 @ToString
 public class TradeQuantity {
     private BigDecimal quantity;
+    private BigDecimal total;
 }

@@ -45,7 +45,8 @@ public class BittrexOrderBookService {
                 JSONObject bid = bids.getJSONObject(i);
                 BigDecimal price = BigDecimal.valueOf(bid.getDouble("Rate"));
                 BigDecimal value = BigDecimal.valueOf(bid.getDouble("Quantity"));
-                orderBook.getBids().add(new FreeOrder(price, value));
+                BigDecimal total = price.multiply(value);
+                orderBook.getBids().add(new FreeOrder(price, value, total));
             }
 
             JSONArray asks = book.getJSONObject("result").getJSONArray("sell");
@@ -54,7 +55,8 @@ public class BittrexOrderBookService {
                 JSONObject ask = asks.getJSONObject(i);
                 BigDecimal price = BigDecimal.valueOf(ask.getDouble("Rate"));
                 BigDecimal value = BigDecimal.valueOf(ask.getDouble("Quantity"));
-                orderBook.getAsks().add(new FreeOrder(price, value));
+                BigDecimal total = price.multiply(value);
+                orderBook.getAsks().add(new FreeOrder(price, value, total));
             }
         } catch (Exception e) {
             log.error("Order book can't be updated");
@@ -82,10 +84,12 @@ public class BittrexOrderBookService {
                 if (condition) {
                     if (tradeHistory.getJSONObject(i).getString("OrderType").equals("BUY")) {
                         BigDecimal buyTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("Quantity"));
-                        marketHistory.getBuys().add(new TradeQuantity(buyTrade));
+                        BigDecimal buyTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("Total"));
+                        marketHistory.getBuys().add(new TradeQuantity(buyTrade, buyTotal));
                     } else if (tradeHistory.getJSONObject(i).getString("OrderType").equals("SELL")) {
                         BigDecimal sellTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("Quantity"));
-                        marketHistory.getSells().add(new TradeQuantity(sellTrade));
+                        BigDecimal sellTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("Total"));
+                        marketHistory.getSells().add(new TradeQuantity(sellTrade, sellTotal));
                     }
                 }
             }

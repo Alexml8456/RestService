@@ -17,36 +17,60 @@ public class OrderService {
     @Autowired
     private BittrexOrderBookService bittrexOrderBookService;
 
-    private String instrument = "USDT-BTC";
+    private int historyOf = 3;
+    private String instrument = "BTC-NBT";
+    private boolean condition = instrument.split("-")[1].equalsIgnoreCase("BTC");
 
-    @Scheduled(cron = "20 * * ? * *")
+    @Scheduled(cron = "20 1/2 * * * ?")
     public void getBook() {
+        double bidsSum;
+        double asksSum;
+        double firstBids;
+        double firstAsks;
         OrderBook orderBook = bittrexOrderBookService.getOrderBook(instrument);
-        double bidsSum = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
-        double asksSum = orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
-        double firstBids = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
-        double firstAsks = orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
+        if (condition) {
+            bidsSum = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
+            asksSum = orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
+            firstBids = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
+            firstAsks = orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
+        } else {
+            bidsSum = orderBook.getBids().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
+            asksSum = orderBook.getAsks().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
+            firstBids = orderBook.getBids().stream().mapToDouble(value -> value.getTotal().doubleValue()).limit(3).sum();
+            firstAsks = orderBook.getAsks().stream().mapToDouble(value -> value.getTotal().doubleValue()).limit(3).sum();
+        }
+
         if (bidsSum > 10 || asksSum > 10) {
-            log.info("--------------------Last orders-------------------------");
-            log.info("Bids - " + orderBook.getBids().toString());
-            log.info("Asks - " + orderBook.getAsks().toString());
+            log.info("--------------------" + instrument + " Last orders" + "--------------------");
+            //log.info("Bids - " + orderBook.getBids().toString());
+            //log.info("Asks - " + orderBook.getAsks().toString());
             log.info("Bids amount(Sell) - " + BittrexOrderBookService.round(bidsSum, 2));
             log.info("Asks amount(Buy) - " + BittrexOrderBookService.round(asksSum, 2));
             log.info("First 3 Bids(Sell) - " + BittrexOrderBookService.round(firstBids, 2));
             log.info("First 3 Asks(Buy) - " + BittrexOrderBookService.round(firstAsks, 2));
-            log.info("-------------------------------------------------------");
+            log.info("---------------------------------------------------------");
         }
     }
 
-    @Scheduled(cron = "50 1/2 * * * ?")
+    @Scheduled(cron = "50 1/3 * * * ?")
     public void getMarketHistory() {
-        MarketHistory marketHistory = bittrexOrderBookService.getMarketHistory(instrument, 2);
-        double buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
-        double sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
-        allSellAmount = allSellAmount + sellSum;
-        allBuyAmount = allBuyAmount + buySum;
+        double buySum;
+        double sellSum;
+        MarketHistory marketHistory = bittrexOrderBookService.getMarketHistory(instrument, historyOf);
+        if (condition) {
+            buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
+            sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
+            allSellAmount = allSellAmount + sellSum;
+            allBuyAmount = allBuyAmount + buySum;
+        } else {
+            buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
+            sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
+            allSellAmount = allSellAmount + sellSum;
+            allBuyAmount = allBuyAmount + buySum;
+        }
+
         if (buySum > 1 || sellSum > 1) {
-            log.info("-------------------Last trade history--------------------------");
+            log.info("--------------------" + instrument + " Last trade history" + "--------------------");
             log.info("All buy amounts - " + BittrexOrderBookService.round(allBuyAmount, 2));
             log.info("All sell amounts - " + BittrexOrderBookService.round(allSellAmount, 2));
             log.info("Buy amounts(Asks) - " + BittrexOrderBookService.round(buySum, 2));

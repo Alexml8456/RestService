@@ -14,4 +14,5 @@ import java.math.BigDecimal;
 public class FreeOrder {
     private BigDecimal price;
     private BigDecimal value;
+    private BigDecimal total;
 }
