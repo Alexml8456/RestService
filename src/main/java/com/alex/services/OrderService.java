@@ -1,5 +1,6 @@
 package com.alex.services;
 
+import com.alex.model.LastOrders;
 import com.alex.model.MarketHistory;
 import com.alex.model.OrderBook;
 import lombok.extern.slf4j.Slf4j;
@@ -7,9 +8,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+
 @Service
 @Slf4j
 public class OrderService {
+
+    @Autowired
+    private DataHolder dataHolder;
 
     private double allSellAmount;
     private double allBuyAmount;
@@ -40,15 +46,28 @@ public class OrderService {
             firstAsks = orderBook.getAsks().stream().mapToDouble(value -> value.getTotal().doubleValue()).limit(3).sum();
         }
 
-        if (bidsSum > 10 || asksSum > 10) {
-            log.info("--------------------" + instrument + " Last orders" + "--------------------");
+        if (bidsSum > 1 || asksSum > 1) {
+            double bidSum = BittrexOrderBookService.round(bidsSum, 2);
+            double askSum = BittrexOrderBookService.round(asksSum, 2);
+            double firsBid = BittrexOrderBookService.round(firstBids, 2);
+            double firstAsk = BittrexOrderBookService.round(firstAsks, 2);
+
+
+            log.info("--------------------" + instrument + " Last orders" + "------------------");
             //log.info("Bids - " + orderBook.getBids().toString());
             //log.info("Asks - " + orderBook.getAsks().toString());
-            log.info("Bids amount(Sell) - " + BittrexOrderBookService.round(bidsSum, 2));
-            log.info("Asks amount(Buy) - " + BittrexOrderBookService.round(asksSum, 2));
-            log.info("First 3 Bids(Sell) - " + BittrexOrderBookService.round(firstBids, 2));
-            log.info("First 3 Asks(Buy) - " + BittrexOrderBookService.round(firstAsks, 2));
+            log.info("Bids amount(Sell) - " + bidSum);
+            log.info("Asks amount(Buy) - " + askSum);
+            log.info("First 3 Bids(Sell) - " + firsBid);
+            log.info("First 3 Asks(Buy) - " + firstAsk);
             log.info("---------------------------------------------------------");
+            LastOrders lo = new LastOrders();
+            lo.setTimestamp(LocalDateTime.now());
+            lo.setBidAmount(bidSum);
+            lo.setAskAmount(askSum);
+            lo.setFirstBids(firsBid);
+            lo.setFirstAsks(firstAsk);
+            dataHolder.addOrder(lo);
         }
     }
 
@@ -70,12 +89,12 @@ public class OrderService {
         }
 
         if (buySum > 1 || sellSum > 1) {
-            log.info("--------------------" + instrument + " Last trade history" + "--------------------");
+            log.info("-----------------" + instrument + " Last trade history" + "----------------");
             log.info("All buy amounts - " + BittrexOrderBookService.round(allBuyAmount, 2));
             log.info("All sell amounts - " + BittrexOrderBookService.round(allSellAmount, 2));
             log.info("Buy amounts(Asks) - " + BittrexOrderBookService.round(buySum, 2));
             log.info("Sell amounts(Bids) - " + BittrexOrderBookService.round(sellSum, 2));
-            log.info("---------------------------------------------------------------");
+            log.info("---------------------------------------------------------");
         }
     }
 }
