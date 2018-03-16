@@ -9,6 +9,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -54,8 +55,8 @@ public class OrderService {
 
 
             log.info("--------------------" + instrument + " Last orders" + "------------------");
-            //log.info("Bids - " + orderBook.getBids().toString());
-            //log.info("Asks - " + orderBook.getAsks().toString());
+            log.info("Bid(Sell) first - " + BittrexOrderBookService.round(orderBook.getBids().first().getTotal().doubleValue(), 2));
+            log.info("Ask(Buy) first - " + BittrexOrderBookService.round(orderBook.getAsks().first().getTotal().doubleValue(), 2));
             log.info("Bids amount(Sell) - " + bidSum);
             log.info("Asks amount(Buy) - " + askSum);
             log.info("First 3 Bids(Sell) - " + firsBid);
