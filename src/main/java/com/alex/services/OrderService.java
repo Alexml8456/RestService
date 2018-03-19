@@ -1,19 +1,25 @@
 package com.alex.services;
 
 import com.alex.model.LastOrders;
+import com.alex.model.LastTrades;
 import com.alex.model.MarketHistory;
 import com.alex.model.OrderBook;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
 import java.util.stream.Collectors;
 
 @Service
 @Slf4j
 public class OrderService {
+
+    @Value("${bittrex.instrument}")
+    private String instrument;
 
     @Autowired
     private DataHolder dataHolder;
@@ -25,49 +31,65 @@ public class OrderService {
     private BittrexOrderBookService bittrexOrderBookService;
 
     private int historyOf = 3;
-    private String instrument = "BTC-NBT";
-    private boolean condition = instrument.split("-")[1].equalsIgnoreCase("BTC");
+    private boolean condition;
+
+    @PostConstruct
+    public void init() {
+        condition = instrument.split("-")[0].equalsIgnoreCase("USDT");
+    }
 
     @Scheduled(cron = "20 1/2 * * * ?")
     public void getBook() {
         double bidsSum;
         double asksSum;
-        double firstBids;
-        double firstAsks;
+        double threeBids;
+        double threeAsks;
+        double fistBid;
+        double fistAsk;
         OrderBook orderBook = bittrexOrderBookService.getOrderBook(instrument);
         if (condition) {
             bidsSum = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
             asksSum = orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
-            firstBids = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
-            firstAsks = orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
+            threeBids = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
+            threeAsks = orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).limit(3).sum();
+            fistBid = orderBook.getBids().first().getValue().doubleValue();
+            fistAsk = orderBook.getAsks().first().getValue().doubleValue();
         } else {
             bidsSum = orderBook.getBids().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
             asksSum = orderBook.getAsks().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
-            firstBids = orderBook.getBids().stream().mapToDouble(value -> value.getTotal().doubleValue()).limit(3).sum();
-            firstAsks = orderBook.getAsks().stream().mapToDouble(value -> value.getTotal().doubleValue()).limit(3).sum();
+            threeBids = orderBook.getBids().stream().mapToDouble(value -> value.getTotal().doubleValue()).limit(3).sum();
+            threeAsks = orderBook.getAsks().stream().mapToDouble(value -> value.getTotal().doubleValue()).limit(3).sum();
+            fistBid = orderBook.getBids().first().getTotal().doubleValue();
+            fistAsk = orderBook.getAsks().first().getTotal().doubleValue();
         }
 
         if (bidsSum > 1 || asksSum > 1) {
+
             double bidSum = BittrexOrderBookService.round(bidsSum, 2);
             double askSum = BittrexOrderBookService.round(asksSum, 2);
-            double firsBid = BittrexOrderBookService.round(firstBids, 2);
-            double firstAsk = BittrexOrderBookService.round(firstAsks, 2);
+            double firsBids = BittrexOrderBookService.round(threeBids, 2);
+            double firstAsks = BittrexOrderBookService.round(threeAsks, 2);
+            double firstBid = BittrexOrderBookService.round(fistBid, 2);
+            double firstAsk = BittrexOrderBookService.round(fistAsk, 2);
 
 
             log.info("--------------------" + instrument + " Last orders" + "------------------");
-            log.info("Bid(Sell) first - " + BittrexOrderBookService.round(orderBook.getBids().first().getTotal().doubleValue(), 2));
-            log.info("Ask(Buy) first - " + BittrexOrderBookService.round(orderBook.getAsks().first().getTotal().doubleValue(), 2));
+            log.info("Bid(Sell) first - " + firstBid);
+            log.info("Ask(Buy) first - " + firstAsk);
             log.info("Bids amount(Sell) - " + bidSum);
             log.info("Asks amount(Buy) - " + askSum);
-            log.info("First 3 Bids(Sell) - " + firsBid);
-            log.info("First 3 Asks(Buy) - " + firstAsk);
+            log.info("First 3 Bids(Sell) - " + firsBids);
+            log.info("First 3 Asks(Buy) - " + firstAsks);
             log.info("---------------------------------------------------------");
             LastOrders lo = new LastOrders();
             lo.setTimestamp(LocalDateTime.now());
+            lo.setInstrument(instrument);
             lo.setBidAmount(bidSum);
             lo.setAskAmount(askSum);
-            lo.setFirstBids(firsBid);
-            lo.setFirstAsks(firstAsk);
+            lo.setFirstBids(firsBids);
+            lo.setFirstAsks(firstAsks);
+            lo.setFirstBid(firstBid);
+            lo.setFirstAsk(firstAsk);
             dataHolder.addOrder(lo);
         }
     }
@@ -96,6 +118,14 @@ public class OrderService {
             log.info("Buy amounts(Asks) - " + BittrexOrderBookService.round(buySum, 2));
             log.info("Sell amounts(Bids) - " + BittrexOrderBookService.round(sellSum, 2));
             log.info("---------------------------------------------------------");
+            LastTrades lt = new LastTrades();
+            lt.setInstrument(instrument);
+            lt.setTimestamp(LocalDateTime.now());
+            lt.setAllBuyAmount(BittrexOrderBookService.round(allBuyAmount, 2));
+            lt.setAllSellAmount(BittrexOrderBookService.round(allSellAmount, 2));
+            lt.setBuySum(BittrexOrderBookService.round(buySum, 2));
+            lt.setSellSum(BittrexOrderBookService.round(sellSum, 2));
+            dataHolder.addTrade(lt);
         }
     }
 }
