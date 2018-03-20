@@ -4,6 +4,8 @@ import com.alex.model.LastOrders;
 import com.alex.model.LastTrades;
 import com.alex.model.MarketHistory;
 import com.alex.model.OrderBook;
+import lombok.Data;
+import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -18,13 +20,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class OrderService {
 
+    @Setter
     @Value("${bittrex.instrument}")
     private String instrument;
 
     @Autowired
     private DataHolder dataHolder;
 
+    @Setter
     private double allSellAmount;
+    @Setter
     private double allBuyAmount;
 
     @Autowired
