@@ -24,6 +24,7 @@ public class ConfigController {
             orderService.setAllBuyAmount(0.0);
             orderService.setAllSellAmount(0.0);
             orderService.setInstrument(currency);
+            orderService.setCondition(currency.split("-")[0].equalsIgnoreCase("USDT"));
         }
     }
 }

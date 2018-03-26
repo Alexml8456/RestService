@@ -38,6 +38,8 @@ public class OrderService {
     private BittrexOrderBookService bittrexOrderBookService;
 
     private int historyOf = 3;
+
+    @Setter
     private boolean condition;
 
     @PostConstruct
