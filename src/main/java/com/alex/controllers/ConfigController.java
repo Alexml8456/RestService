@@ -20,6 +20,7 @@ public class ConfigController {
     @PostMapping(value = "/currency/set")
     public void setCurrency(@RequestBody String currency) {
         if (!isEmpty(currency)) {
+            orderService.setDifference(0.0);
             orderService.setAllBuyAmount(0.0);
             orderService.setAllSellAmount(0.0);
             orderService.setInstrument(currency);

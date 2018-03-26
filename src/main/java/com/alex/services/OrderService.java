@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -31,6 +30,9 @@ public class OrderService {
     private double allSellAmount;
     @Setter
     private double allBuyAmount;
+
+    @Setter
+    private double difference;
 
     @Autowired
     private BittrexOrderBookService bittrexOrderBookService;
@@ -109,15 +111,18 @@ public class OrderService {
             sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
             allSellAmount = allSellAmount + sellSum;
             allBuyAmount = allBuyAmount + buySum;
+            difference = allBuyAmount - allSellAmount;
         } else {
             buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
             sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
             allSellAmount = allSellAmount + sellSum;
             allBuyAmount = allBuyAmount + buySum;
+            difference = allBuyAmount - allSellAmount;
         }
 
         if (buySum > 1 || sellSum > 1) {
             log.info("-----------------" + instrument + " Last trade history" + "----------------");
+            log.info("Buy & Sell difference - " + "(" + BittrexOrderBookService.round(difference, 2) + ")");
             log.info("All buy amounts - " + BittrexOrderBookService.round(allBuyAmount, 2));
             log.info("All sell amounts - " + BittrexOrderBookService.round(allSellAmount, 2));
             log.info("Buy amounts(Asks) - " + BittrexOrderBookService.round(buySum, 2));
@@ -126,11 +131,17 @@ public class OrderService {
             LastTrades lt = new LastTrades();
             lt.setInstrument(instrument);
             lt.setTimestamp(LocalDateTime.now());
+            lt.setDifference(BittrexOrderBookService.round(difference, 2));
             lt.setAllBuyAmount(BittrexOrderBookService.round(allBuyAmount, 2));
             lt.setAllSellAmount(BittrexOrderBookService.round(allSellAmount, 2));
             lt.setBuySum(BittrexOrderBookService.round(buySum, 2));
             lt.setSellSum(BittrexOrderBookService.round(sellSum, 2));
             dataHolder.addTrade(lt);
         }
+    }
+
+    @Scheduled(cron = "30 30 23 ? * *")
+    public void clearHistory() {
+        dataHolder.clearDataHolder();
     }
 }

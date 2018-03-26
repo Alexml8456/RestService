@@ -3,12 +3,14 @@ package com.alex.services;
 import com.alex.model.LastOrders;
 import com.alex.model.LastTrades;
 import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@Slf4j
 public class DataHolder {
 
     @Getter
@@ -23,5 +25,15 @@ public class DataHolder {
 
     public void addTrade(LastTrades trades) {
         lastTrades.add(trades);
+    }
+
+    public void clearDataHolder() {
+        try {
+            this.lastTrades.clear();
+            this.lastOrders.clear();
+        } catch (Exception e) {
+            log.error("History cannot be cleared");
+        }
+
     }
 }

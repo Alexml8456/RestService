@@ -1,6 +1,8 @@
 package com.alex.model;
 
 import lombok.Data;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
 
 import java.util.Comparator;
 import java.util.SortedSet;

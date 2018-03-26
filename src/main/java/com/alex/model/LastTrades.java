@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 @Data
 public class LastTrades {
     private LocalDateTime timestamp;
+    private double difference;
     private double allBuyAmount;
     private double allSellAmount;
     private double buySum;
@@ -17,6 +18,7 @@ public class LastTrades {
     public String toString() {
         return "Instrument name - " + instrument + "<br>" +
                 "Timestamp - " + timestamp + "<br>" +
+                "Buy & Sell difference - " + "(" + difference + ")" + "<br>" +
                 "All buy amounts - " + allBuyAmount + "<br>" +
                 "All sell amounts - " + allSellAmount + "<br>" +
                 "Buy amounts(Asks) - " + buySum + "<br>" +
