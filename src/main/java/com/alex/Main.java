@@ -1,13 +1,15 @@
 package com.alex;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+
 public class Main {
 
     public static void main(String[] args) {
-        String instrument = "BTC-USDT";
-        boolean condition = instrument.split("-")[1].equalsIgnoreCase("BTC");
-        if (condition){
-            System.out.println("test");
-        }
+        System.out.println(getGMTTimeMillis());
+    }
 
+    private static LocalDateTime getGMTTimeMillis() {
+        return LocalDateTime.now(ZoneId.of("GMT-0"));
     }
 }

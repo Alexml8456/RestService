@@ -11,7 +11,7 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
-public class TradeQuantity {
+public class BitmexTradeQuantity {
     private BigDecimal quantity;
     private BigDecimal total;
 }

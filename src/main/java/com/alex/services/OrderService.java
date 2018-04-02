@@ -1,16 +1,15 @@
 package com.alex.services;
 
-import com.alex.model.LastOrders;
-import com.alex.model.LastTrades;
-import com.alex.model.MarketHistory;
-import com.alex.model.OrderBook;
-import lombok.Data;
+import com.alex.model.*;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.PostConstruct;
 import java.time.LocalDateTime;
@@ -19,12 +18,22 @@ import java.time.LocalDateTime;
 @Slf4j
 public class OrderService {
 
+    @Autowired
+    private RestTemplate restTemplate;
+
     @Setter
     @Value("${bittrex.instrument}")
     private String instrument;
 
+    @Value("${bitmex.instrument}")
+    private String bitMexInstrument;
+
     @Autowired
     private DataHolder dataHolder;
+
+    private double allBitMexSellAmount;
+    private double allBitMexBuyAmount;
+    private double bitMexDifference;
 
     @Setter
     private double allSellAmount;
@@ -35,9 +44,13 @@ public class OrderService {
     private double difference;
 
     @Autowired
-    private BittrexOrderBookService bittrexOrderBookService;
+    private BittrexService bittrexService;
+
+    @Autowired
+    private BitmexService bitmexService;
 
     private int historyOf = 3;
+    private int historyOfBitMex = 10;
 
     @Setter
     private boolean condition;
@@ -47,7 +60,7 @@ public class OrderService {
         condition = instrument.split("-")[0].equalsIgnoreCase("USDT");
     }
 
-    @Scheduled(cron = "20 1/2 * * * ?")
+/*    @Scheduled(cron = "20 1/2 * * * ?")
     public void getBook() {
         double bidsSum;
         double asksSum;
@@ -55,7 +68,7 @@ public class OrderService {
         double threeAsks;
         double fistBid;
         double fistAsk;
-        OrderBook orderBook = bittrexOrderBookService.getOrderBook(instrument);
+        OrderBook orderBook = bittrexService.getOrderBook(instrument);
         if (condition) {
             bidsSum = orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
             asksSum = orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).sum();
@@ -74,12 +87,12 @@ public class OrderService {
 
         if (bidsSum > 1 || asksSum > 1) {
 
-            double bidSum = BittrexOrderBookService.round(bidsSum, 2);
-            double askSum = BittrexOrderBookService.round(asksSum, 2);
-            double firsBids = BittrexOrderBookService.round(threeBids, 2);
-            double firstAsks = BittrexOrderBookService.round(threeAsks, 2);
-            double firstBid = BittrexOrderBookService.round(fistBid, 2);
-            double firstAsk = BittrexOrderBookService.round(fistAsk, 2);
+            double bidSum = BittrexService.round(bidsSum, 2);
+            double askSum = BittrexService.round(asksSum, 2);
+            double firsBids = BittrexService.round(threeBids, 2);
+            double firstAsks = BittrexService.round(threeAsks, 2);
+            double firstBid = BittrexService.round(fistBid, 2);
+            double firstAsk = BittrexService.round(fistAsk, 2);
 
 
             log.info("--------------------" + instrument + " Last orders" + "------------------");
@@ -107,7 +120,7 @@ public class OrderService {
     public void getMarketHistory() {
         double buySum;
         double sellSum;
-        MarketHistory marketHistory = bittrexOrderBookService.getMarketHistory(instrument, historyOf);
+        BittrexMarketHistory marketHistory = bittrexService.getMarketHistory(instrument, historyOf);
         if (condition) {
             buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
             sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
@@ -124,20 +137,20 @@ public class OrderService {
 
         if (buySum > 1 || sellSum > 1) {
             log.info("-----------------" + instrument + " Last trade history" + "----------------");
-            log.info("Buy & Sell difference - " + "(" + BittrexOrderBookService.round(difference, 2) + ")");
-            log.info("All buy amounts - " + BittrexOrderBookService.round(allBuyAmount, 2));
-            log.info("All sell amounts - " + BittrexOrderBookService.round(allSellAmount, 2));
-            log.info("Buy amounts(Asks) - " + BittrexOrderBookService.round(buySum, 2));
-            log.info("Sell amounts(Bids) - " + BittrexOrderBookService.round(sellSum, 2));
+            log.info("Buy & Sell difference - " + "(" + BittrexService.round(difference, 2) + ")");
+            log.info("All buy amounts - " + BittrexService.round(allBuyAmount, 2));
+            log.info("All sell amounts - " + BittrexService.round(allSellAmount, 2));
+            log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
+            log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
             log.info("---------------------------------------------------------");
             LastTrades lt = new LastTrades();
             lt.setInstrument(instrument);
             lt.setTimestamp(LocalDateTime.now());
-            lt.setDifference(BittrexOrderBookService.round(difference, 2));
-            lt.setAllBuyAmount(BittrexOrderBookService.round(allBuyAmount, 2));
-            lt.setAllSellAmount(BittrexOrderBookService.round(allSellAmount, 2));
-            lt.setBuySum(BittrexOrderBookService.round(buySum, 2));
-            lt.setSellSum(BittrexOrderBookService.round(sellSum, 2));
+            lt.setDifference(BittrexService.round(difference, 2));
+            lt.setAllBuyAmount(BittrexService.round(allBuyAmount, 2));
+            lt.setAllSellAmount(BittrexService.round(allSellAmount, 2));
+            lt.setBuySum(BittrexService.round(buySum, 2));
+            lt.setSellSum(BittrexService.round(sellSum, 2));
             dataHolder.addTrade(lt);
         }
     }
@@ -145,5 +158,27 @@ public class OrderService {
     @Scheduled(cron = "30 30 23 ? * *")
     public void clearHistory() {
         dataHolder.clearDataHolder();
+    }*/
+
+    @Scheduled(fixedRate = 10000)
+    public void getBitMexMarketHistory(){
+        double buySum;
+        double sellSum;
+
+        BitmexMarketHistory marketHistory = bitmexService.getMarketHistory(bitMexInstrument, historyOfBitMex);
+        buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
+        sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
+        allBitMexSellAmount = allBitMexSellAmount + sellSum;
+        allBitMexBuyAmount = allBitMexBuyAmount + buySum;
+        bitMexDifference = allBitMexBuyAmount - allBitMexSellAmount;
+
+        log.info("-----------------" + bitMexInstrument + " Last trade history" + "----------------");
+        log.info("Buy & Sell difference - " + "(" + BittrexService.round(bitMexDifference, 2) + ")");
+        log.info("All buy amounts - " + BittrexService.round(allBitMexBuyAmount, 2));
+        log.info("All sell amounts - " + BittrexService.round(allBitMexSellAmount, 2));
+        log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
+        log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
+        log.info("---------------------------------------------------------");
+
     }
 }

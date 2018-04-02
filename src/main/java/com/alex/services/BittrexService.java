@@ -1,9 +1,9 @@
 package com.alex.services;
 
 import com.alex.model.FreeOrder;
-import com.alex.model.MarketHistory;
+import com.alex.model.BittrexMarketHistory;
 import com.alex.model.OrderBook;
-import com.alex.model.TradeQuantity;
+import com.alex.model.BittrexTradeQuantity;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -20,7 +20,7 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 @Slf4j
-public class BittrexOrderBookService {
+public class BittrexService {
 
     @Value("${bittrex.publicApi}")
     private String publicApi;
@@ -64,13 +64,13 @@ public class BittrexOrderBookService {
         return orderBook;
     }
 
-    private MarketHistory updateMarketHistory(String instrument, int minutes) {
+    private BittrexMarketHistory updateMarketHistory(String instrument, int minutes) {
         String resUrl = publicApi.concat("getmarkethistory/?")
                 .concat("market=").concat(instrument);
 
         JSONObject history = new JSONObject(restTemplate.getForObject(resUrl, String.class));
 
-        MarketHistory marketHistory = new MarketHistory();
+        BittrexMarketHistory marketHistory = new BittrexMarketHistory();
         try {
 
             JSONArray tradeHistory = history.getJSONArray("result");
@@ -85,11 +85,11 @@ public class BittrexOrderBookService {
                     if (tradeHistory.getJSONObject(i).getString("OrderType").equals("BUY")) {
                         BigDecimal buyTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("Quantity"));
                         BigDecimal buyTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("Total"));
-                        marketHistory.getBuys().add(new TradeQuantity(buyTrade, buyTotal));
+                        marketHistory.getBuys().add(new BittrexTradeQuantity(buyTrade, buyTotal));
                     } else if (tradeHistory.getJSONObject(i).getString("OrderType").equals("SELL")) {
                         BigDecimal sellTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("Quantity"));
                         BigDecimal sellTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("Total"));
-                        marketHistory.getSells().add(new TradeQuantity(sellTrade, sellTotal));
+                        marketHistory.getSells().add(new BittrexTradeQuantity(sellTrade, sellTotal));
                     }
                 }
             }
@@ -118,8 +118,8 @@ public class BittrexOrderBookService {
         return book;
     }
 
-    public MarketHistory getMarketHistory(String instrument, int minutes) {
-        MarketHistory marketHistory = null;
+    public BittrexMarketHistory getMarketHistory(String instrument, int minutes) {
+        BittrexMarketHistory marketHistory = null;
         int counter = 0;
         while (marketHistory == null && counter < 5) {
             try {
