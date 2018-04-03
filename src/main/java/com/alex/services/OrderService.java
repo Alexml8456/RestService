@@ -50,7 +50,7 @@ public class OrderService {
     private BitmexService bitmexService;
 
     private int historyOf = 3;
-    private int historyOfBitMex = 10;
+    private int historyOfBitMex = 11;
 
     @Setter
     private boolean condition;
@@ -160,14 +160,14 @@ public class OrderService {
         dataHolder.clearDataHolder();
     }*/
 
-    @Scheduled(fixedRate = 10000)
+    @Scheduled(cron = "0/10 * * ? * *")
     public void getBitMexMarketHistory(){
         double buySum;
         double sellSum;
 
         BitmexMarketHistory marketHistory = bitmexService.getMarketHistory(bitMexInstrument, historyOfBitMex);
-        buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
-        sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
+        buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
+        sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
         allBitMexSellAmount = allBitMexSellAmount + sellSum;
         allBitMexBuyAmount = allBitMexBuyAmount + buySum;
         bitMexDifference = allBitMexBuyAmount - allBitMexSellAmount;

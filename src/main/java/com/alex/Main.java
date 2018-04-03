@@ -4,12 +4,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 public class Main {
-
     public static void main(String[] args) {
-        System.out.println(getGMTTimeMillis());
-    }
-
-    private static LocalDateTime getGMTTimeMillis() {
-        return LocalDateTime.now(ZoneId.of("GMT-0"));
+        String test = "2018-04-03T07:04:24.762Z";
+        System.out.println(test.replace("Z",""));
     }
 }

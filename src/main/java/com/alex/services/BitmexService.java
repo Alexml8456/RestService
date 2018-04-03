@@ -39,7 +39,7 @@ public class BitmexService {
             LocalDateTime gmtTimeNow = DateTime.getGMTTimeMillis();
 
             for (int i = 0; i < tradeHistory.length(); i++) {
-                String time = tradeHistory.getJSONObject(i).get("timestamp").toString();
+                String time = tradeHistory.getJSONObject(i).get("timestamp").toString().replace("Z","");
                 LocalDateTime gmtTimeConverted = DateTime.GMTTimeConverter(time);
 
                 boolean condition = gmtTimeConverted.plusSeconds(seconds).isAfter(gmtTimeNow);
