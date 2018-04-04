@@ -25,6 +25,7 @@ public class BitmexService {
     private RestTemplate restTemplate;
 
 
+    //Rest example - https://www.bitmex.com/api/v1/trade?symbol=XBT&count=500&reverse=true
     private BitmexMarketHistory updateMarketHistory(String instrument, int seconds) {
         String resUrl = publicApi.concat("trade/?")
                 .concat("symbol=").concat(instrument).concat("&count=500&reverse=true");
