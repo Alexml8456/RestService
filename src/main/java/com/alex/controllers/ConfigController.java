@@ -27,4 +27,13 @@ public class ConfigController {
             orderService.setCondition(currency.split("-")[0].equalsIgnoreCase("USDT"));
         }
     }
+
+    @PostMapping(value = "/zero/set")
+    public void setToZero(@RequestBody String zero) {
+        if (!isEmpty(zero)) {
+            orderService.setBitMexDifference(0.0);
+            orderService.setAllBitMexBuyAmount(0.0);
+            orderService.setAllBitMexSellAmount(0.0);
+        }
+    }
 }

@@ -7,6 +7,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -58,7 +60,7 @@ public class BitmexService {
             }
 
         } catch (Exception e) {
-            log.error("Market history can't be updated");
+            log.error("BitMex Market history can't be updated");
         }
         return marketHistory;
     }
@@ -75,7 +77,7 @@ public class BitmexService {
             }
         }
         if (marketHistory == null) {
-            throw new IllegalStateException("Market history is not reachable");
+            throw new IllegalStateException("BitMex Market history is not reachable");
         }
         return marketHistory;
     }

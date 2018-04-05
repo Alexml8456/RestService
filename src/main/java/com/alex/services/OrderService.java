@@ -31,12 +31,18 @@ public class OrderService {
     @Autowired
     private DataHolder dataHolder;
 
+    @Setter
     private double allBitMexSellAmount;
+
+    @Setter
     private double allBitMexBuyAmount;
+
+    @Setter
     private double bitMexDifference;
 
     @Setter
     private double allSellAmount;
+
     @Setter
     private double allBuyAmount;
 
@@ -60,7 +66,7 @@ public class OrderService {
         condition = instrument.split("-")[0].equalsIgnoreCase("USDT");
     }
 
-/*    @Scheduled(cron = "20 1/2 * * * ?")
+    @Scheduled(cron = "20 1/2 * * * ?")
     public void getBook() {
         double bidsSum;
         double asksSum;
@@ -136,13 +142,13 @@ public class OrderService {
         }
 
         if (buySum > 1 || sellSum > 1) {
-            log.info("-----------------" + instrument + " Last trade history" + "----------------");
-            log.info("Buy & Sell difference - " + "(" + BittrexService.round(difference, 2) + ")");
-            log.info("All buy amounts - " + BittrexService.round(allBuyAmount, 2));
-            log.info("All sell amounts - " + BittrexService.round(allSellAmount, 2));
-            log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
-            log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
-            log.info("---------------------------------------------------------");
+//            log.info("-----------------" + instrument + " Last trade history" + "----------------");
+//            log.info("Buy & Sell difference - " + "(" + BittrexService.round(difference, 2) + ")");
+//            log.info("All buy amounts - " + BittrexService.round(allBuyAmount, 2));
+//            log.info("All sell amounts - " + BittrexService.round(allSellAmount, 2));
+//            log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
+//            log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
+//            log.info("---------------------------------------------------------");
             LastTrades lt = new LastTrades();
             lt.setInstrument(instrument);
             lt.setTimestamp(LocalDateTime.now());
@@ -158,10 +164,10 @@ public class OrderService {
     @Scheduled(cron = "30 30 23 ? * *")
     public void clearHistory() {
         dataHolder.clearDataHolder();
-    }*/
+    }
 
     @Scheduled(cron = "0/10 * * ? * *")
-    public void getBitMexMarketHistory(){
+    public void getBitMexMarketHistory() {
         double buySum;
         double sellSum;
 
@@ -172,13 +178,24 @@ public class OrderService {
         allBitMexBuyAmount = allBitMexBuyAmount + buySum;
         bitMexDifference = allBitMexBuyAmount - allBitMexSellAmount;
 
-        log.info("-----------------" + bitMexInstrument + " Last trade history" + "----------------");
-        log.info("Buy & Sell difference - " + "(" + BittrexService.round(bitMexDifference, 2) + ")");
-        log.info("All buy amounts - " + BittrexService.round(allBitMexBuyAmount, 2));
-        log.info("All sell amounts - " + BittrexService.round(allBitMexSellAmount, 2));
-        log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
-        log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
-        log.info("---------------------------------------------------------");
+        if (buySum > 10 || sellSum > 10) {
+//            log.info("-----------------" + bitMexInstrument + " Last trade history" + "----------------");
+//            log.info("Buy & Sell difference - " + "(" + BittrexService.round(bitMexDifference, 2) + ")");
+//            log.info("All buy amounts - " + BittrexService.round(allBitMexBuyAmount, 2));
+//            log.info("All sell amounts - " + BittrexService.round(allBitMexSellAmount, 2));
+//            log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
+//            log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
+//            log.info("---------------------------------------------------------");
 
+            LastBitmexTrades lbt = new LastBitmexTrades();
+            lbt.setInstrument(bitMexInstrument);
+            lbt.setTimestamp(LocalDateTime.now());
+            lbt.setBitMexDifference(BittrexService.round(bitMexDifference, 2));
+            lbt.setAllBitMexBuyAmount(BittrexService.round(allBitMexBuyAmount, 2));
+            lbt.setAllBitMexSellAmount(BittrexService.round(allBitMexSellAmount, 2));
+            lbt.setBuySum(BittrexService.round(buySum, 2));
+            lbt.setSellSum(BittrexService.round(sellSum, 2));
+            dataHolder.addBitmexTrade(lbt);
+        }
     }
 }

@@ -1,5 +1,6 @@
 package com.alex.services;
 
+import com.alex.model.LastBitmexTrades;
 import com.alex.model.LastOrders;
 import com.alex.model.LastTrades;
 import lombok.Getter;
@@ -27,10 +28,18 @@ public class DataHolder {
         lastTrades.add(trades);
     }
 
+    @Getter
+    private List<LastBitmexTrades> lastBitmexTrades = new ArrayList<>();
+
+    public void addBitmexTrade(LastBitmexTrades trades){
+        lastBitmexTrades.add(trades);
+    }
+
     public void clearDataHolder() {
         try {
             this.lastTrades.clear();
             this.lastOrders.clear();
+            this.lastBitmexTrades.clear();
         } catch (Exception e) {
             log.error("History cannot be cleared");
         }
