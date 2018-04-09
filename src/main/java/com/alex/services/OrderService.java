@@ -3,8 +3,6 @@ package com.alex.services;
 import com.alex.model.*;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONArray;
-import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -101,14 +99,14 @@ public class OrderService {
             double firstAsk = BittrexService.round(fistAsk, 2);
 
 
-            log.info("--------------------" + instrument + " Last orders" + "------------------");
-            log.info("Bid(Sell) first - " + firstBid);
-            log.info("Ask(Buy) first - " + firstAsk);
-            log.info("Bids amount(Sell) - " + bidSum);
-            log.info("Asks amount(Buy) - " + askSum);
-            log.info("First 3 Bids(Sell) - " + firsBids);
-            log.info("First 3 Asks(Buy) - " + firstAsks);
-            log.info("---------------------------------------------------------");
+//            log.info("--------------------" + instrument + " Last orders" + "------------------");
+//            log.info("Bid(Sell) first - " + firstBid);
+//            log.info("Ask(Buy) first - " + firstAsk);
+//            log.info("Bids amount(Sell) - " + bidSum);
+//            log.info("Asks amount(Buy) - " + askSum);
+//            log.info("First 3 Bids(Sell) - " + firsBids);
+//            log.info("First 3 Asks(Buy) - " + firstAsks);
+//            log.info("---------------------------------------------------------");
             LastOrders lo = new LastOrders();
             lo.setTimestamp(LocalDateTime.now());
             lo.setInstrument(instrument);
