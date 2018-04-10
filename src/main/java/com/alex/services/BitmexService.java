@@ -42,19 +42,21 @@ public class BitmexService {
             LocalDateTime gmtTimeNow = DateTime.getGMTTimeMillis();
 
             for (int i = 0; i < tradeHistory.length(); i++) {
-                String time = tradeHistory.getJSONObject(i).get("timestamp").toString().replace("Z","");
+                String time = tradeHistory.getJSONObject(i).get("timestamp").toString().replace("Z", "");
                 LocalDateTime gmtTimeConverted = DateTime.GMTTimeConverter(time);
 
                 boolean condition = gmtTimeConverted.plusSeconds(seconds).isAfter(gmtTimeNow);
                 if (condition) {
                     if (tradeHistory.getJSONObject(i).getString("side").equals("Buy")) {
+                        BigDecimal price = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("price"));
                         BigDecimal buyTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("size"));
                         BigDecimal buyTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("homeNotional"));
-                        marketHistory.getBuys().add(new BitmexTradeQuantity(buyTrade, buyTotal));
+                        marketHistory.getBuys().add(new BitmexTradeQuantity(buyTrade, buyTotal, price));
                     } else if (tradeHistory.getJSONObject(i).getString("side").equals("Sell")) {
+                        BigDecimal price = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("price"));
                         BigDecimal sellTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("size"));
                         BigDecimal sellTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("homeNotional"));
-                        marketHistory.getSells().add(new BitmexTradeQuantity(sellTrade, sellTotal));
+                        marketHistory.getSells().add(new BitmexTradeQuantity(sellTrade, sellTotal, price));
                     }
                 }
             }

@@ -168,22 +168,26 @@ public class OrderService {
     public void getBitMexMarketHistory() {
         double buySum;
         double sellSum;
+        double price;
 
         BitmexMarketHistory marketHistory = bitmexService.getMarketHistory(bitMexInstrument, historyOfBitMex);
         buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
         sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
+        price = marketHistory.getPrices().stream().mapToDouble(value -> value.getPrice().doubleValue()).sum();
+
         allBitMexSellAmount = allBitMexSellAmount + sellSum;
         allBitMexBuyAmount = allBitMexBuyAmount + buySum;
         bitMexDifference = allBitMexBuyAmount - allBitMexSellAmount;
 
         if (buySum > 10 || sellSum > 10) {
-//            log.info("-----------------" + bitMexInstrument + " Last trade history" + "----------------");
-//            log.info("Buy & Sell difference - " + "(" + BittrexService.round(bitMexDifference, 2) + ")");
-//            log.info("All buy amounts - " + BittrexService.round(allBitMexBuyAmount, 2));
-//            log.info("All sell amounts - " + BittrexService.round(allBitMexSellAmount, 2));
-//            log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
-//            log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
-//            log.info("---------------------------------------------------------");
+            log.info("-----------------" + bitMexInstrument + " Last trade history" + "----------------");
+            log.info("Buy & Sell difference - " + "(" + BittrexService.round(bitMexDifference, 2) + ")");
+            log.info("All buy amounts - " + BittrexService.round(allBitMexBuyAmount, 2));
+            log.info("All sell amounts - " + BittrexService.round(allBitMexSellAmount, 2));
+            log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
+            log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
+            log.info("Last price - " + BittrexService.round(price, 2));
+            log.info("---------------------------------------------------------");
 
             LastBitmexTrades lbt = new LastBitmexTrades();
             lbt.setInstrument(bitMexInstrument);

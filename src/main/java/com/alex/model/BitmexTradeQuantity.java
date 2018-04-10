@@ -14,4 +14,5 @@ import java.math.BigDecimal;
 public class BitmexTradeQuantity {
     private BigDecimal quantity;
     private BigDecimal total;
+    private BigDecimal price;
 }
