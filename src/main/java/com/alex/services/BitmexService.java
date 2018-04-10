@@ -1,5 +1,6 @@
 package com.alex.services;
 
+import com.alex.model.BitmexLastPrice;
 import com.alex.model.BitmexMarketHistory;
 import com.alex.model.BitmexTradeQuantity;
 import com.alex.utils.DateTime;
@@ -7,8 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.client.RestTemplateBuilder;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
@@ -41,6 +40,9 @@ public class BitmexService {
             JSONArray tradeHistory = new JSONArray(history);
             LocalDateTime gmtTimeNow = DateTime.getGMTTimeMillis();
 
+            BigDecimal price = BigDecimal.valueOf(tradeHistory.getJSONObject(0).getDouble("price"));
+            marketHistory.getPrices().add(new BitmexLastPrice(price));
+
             for (int i = 0; i < tradeHistory.length(); i++) {
                 String time = tradeHistory.getJSONObject(i).get("timestamp").toString().replace("Z", "");
                 LocalDateTime gmtTimeConverted = DateTime.GMTTimeConverter(time);
@@ -48,15 +50,13 @@ public class BitmexService {
                 boolean condition = gmtTimeConverted.plusSeconds(seconds).isAfter(gmtTimeNow);
                 if (condition) {
                     if (tradeHistory.getJSONObject(i).getString("side").equals("Buy")) {
-                        BigDecimal price = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("price"));
                         BigDecimal buyTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("size"));
                         BigDecimal buyTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("homeNotional"));
-                        marketHistory.getBuys().add(new BitmexTradeQuantity(buyTrade, buyTotal, price));
+                        marketHistory.getBuys().add(new BitmexTradeQuantity(buyTrade, buyTotal));
                     } else if (tradeHistory.getJSONObject(i).getString("side").equals("Sell")) {
-                        BigDecimal price = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("price"));
                         BigDecimal sellTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("size"));
                         BigDecimal sellTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("homeNotional"));
-                        marketHistory.getSells().add(new BitmexTradeQuantity(sellTrade, sellTotal, price));
+                        marketHistory.getSells().add(new BitmexTradeQuantity(sellTrade, sellTotal));
                     }
                 }
             }

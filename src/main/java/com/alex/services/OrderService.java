@@ -173,7 +173,7 @@ public class OrderService {
         BitmexMarketHistory marketHistory = bitmexService.getMarketHistory(bitMexInstrument, historyOfBitMex);
         buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
         sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum();
-        price = marketHistory.getPrices().stream().mapToDouble(value -> value.getPrice().doubleValue()).sum();
+        price = marketHistory.getPrices().stream().mapToDouble(value -> value.getPrice().doubleValue()).limit(1).sum();
 
         allBitMexSellAmount = allBitMexSellAmount + sellSum;
         allBitMexBuyAmount = allBitMexBuyAmount + buySum;
@@ -197,6 +197,7 @@ public class OrderService {
             lbt.setAllBitMexSellAmount(BittrexService.round(allBitMexSellAmount, 2));
             lbt.setBuySum(BittrexService.round(buySum, 2));
             lbt.setSellSum(BittrexService.round(sellSum, 2));
+            lbt.setPrice(BittrexService.round(price, 2));
             dataHolder.addBitmexTrade(lbt);
         }
     }

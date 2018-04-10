@@ -8,5 +8,6 @@ import java.util.*;
 public class BitmexMarketHistory {
     private Set<BitmexTradeQuantity> buys = new HashSet<>();
     private Set<BitmexTradeQuantity> sells = new HashSet<>();
-    private Set<BitmexTradeQuantity> prices = new HashSet<>();
+    private Set<BitmexLastPrice> prices = new HashSet<>();
+
 }
