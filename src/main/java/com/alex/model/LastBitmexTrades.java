@@ -17,6 +17,16 @@ public class LastBitmexTrades {
 
     @Override
     public String toString() {
+        if (buySum > count && sellSum > count) {
+            return "<style>span{background-color:#f18973;}span1{background-color:#32B232;}</style>" +
+                    "Instrument name - " + instrument + "<br>" +
+                    "Timestamp - " + timestamp + "<br>" +
+                    "Buy & Sell difference - " + "(" + bitMexDifference + ")" + "<br>" +
+                    "All buy amounts - " + allBitMexBuyAmount + "<br>" +
+                    "All sell amounts - " + allBitMexSellAmount + "<br>" +
+                    "<span1>Buy amounts(Asks) - " + buySum + "</span1>" + "<br>" +
+                    "<span>Sell amounts(Bids) - " + sellSum + "</span>" + "<br>";
+        }
         if (buySum > count) {
             return "<style>span{background-color:#f18973;}span1{background-color:#32B232;}</style>" +
                     "Instrument name - " + instrument + "<br>" +
