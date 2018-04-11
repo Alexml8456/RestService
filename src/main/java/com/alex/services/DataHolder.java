@@ -24,6 +24,13 @@ public class DataHolder {
     @Getter
     private List<LastTrades> lastTrades = new ArrayList<>();
 
+    @Getter
+    private List<String> subscriptions = new ArrayList<>();
+
+    public void addSubscriber(String subscription) {
+        subscriptions.add(subscription);
+    }
+
     public void addTrade(LastTrades trades) {
         lastTrades.add(trades);
     }
@@ -31,7 +38,7 @@ public class DataHolder {
     @Getter
     private List<LastBitmexTrades> lastBitmexTrades = new ArrayList<>();
 
-    public void addBitmexTrade(LastBitmexTrades trades){
+    public void addBitmexTrade(LastBitmexTrades trades) {
         lastBitmexTrades.add(trades);
     }
 

@@ -1,6 +1,7 @@
 package com.alex.services;
 
 import com.alex.model.*;
+import com.alex.telegram.TelegramNotifierBot;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +19,9 @@ public class OrderService {
 
     @Autowired
     private RestTemplate restTemplate;
+
+    @Autowired
+    private TelegramNotifierBot telegramNotifierBot;
 
     @Setter
     @Value("${bittrex.instrument}")
@@ -199,6 +203,10 @@ public class OrderService {
             lbt.setSellSum(BittrexService.round(sellSum, 2));
             lbt.setPrice(BittrexService.round(price, 2));
             dataHolder.addBitmexTrade(lbt);
+
+            if (buySum > 100 || sellSum > 100) {
+                telegramNotifierBot.pushMessage(dataHolder.getSubscriptions(), "Last bought trade: " + BittrexService.round(buySum, 2) + ";\n" + "Last sold trade: " + BittrexService.round(sellSum, 2) + ";\n" + "Last price: " + BittrexService.round(price, 2));
+            }
         }
     }
 }

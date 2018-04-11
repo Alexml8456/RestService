@@ -1,6 +1,8 @@
 package com.alex.model;
 
+import com.alex.services.DataHolder;
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import java.time.LocalDateTime;
 
@@ -15,6 +17,9 @@ public class LastBitmexTrades {
     private double price;
     private String instrument;
     private int count = 100;
+
+    @Autowired
+    private DataHolder dataHolder;
 
     @Override
     public String toString() {
@@ -59,4 +64,6 @@ public class LastBitmexTrades {
                 "Sell amounts(Bids) - " + sellSum + "<br>" +
                 "Last price - " + price + "<br>";
     }
+
+
 }
