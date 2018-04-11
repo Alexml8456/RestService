@@ -38,7 +38,7 @@ public class TelegramNotifierBot extends TelegramLongPollingBot {
             pushMessage(Collections.singletonList(chatId), "You verified RestNotifier subscription");
         } else if (text.contains("stop")) {
             dataHolder.deleteSubscriber(chatId);
-            pushMessage(Collections.singletonList(chatId), "You successfully unsubscribed!");
+            //pushMessage(Collections.singletonList(chatId), "You successfully unsubscribed!");
         }
     }
 
