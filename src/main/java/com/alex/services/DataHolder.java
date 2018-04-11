@@ -31,6 +31,10 @@ public class DataHolder {
         subscriptions.add(subscription);
     }
 
+    public void deleteSubscriber(String subscription){
+        subscriptions.remove(subscription);
+    }
+
     public void addTrade(LastTrades trades) {
         lastTrades.add(trades);
     }

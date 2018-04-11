@@ -13,7 +13,7 @@ import java.util.Collections;
 import java.util.List;
 
 @Slf4j
-public class TelegramNotifierBot extends TelegramLongPollingBot{
+public class TelegramNotifierBot extends TelegramLongPollingBot {
     private String botToken;
 
     @Autowired
@@ -31,14 +31,16 @@ public class TelegramNotifierBot extends TelegramLongPollingBot{
 
     private void handle(Update update) {
         String text = update.getMessage().getText();
+        String chatId = update.getMessage().getChatId().toString();
         log.info(text);
         if (text.contains("start")) {
-            String chatId = update.getMessage().getChatId().toString();
             dataHolder.addSubscriber(chatId);
             pushMessage(Collections.singletonList(chatId), "You verified RestNotifier subscription");
+        } else if (text.contains("stop")) {
+            dataHolder.deleteSubscriber(chatId);
+            pushMessage(Collections.singletonList(chatId), "You successfully unsubscribed!");
         }
     }
-
 
 
     public void pushMessage(List<String> chatIds, String text) {
