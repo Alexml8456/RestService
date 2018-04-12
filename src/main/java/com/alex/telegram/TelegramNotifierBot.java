@@ -32,7 +32,7 @@ public class TelegramNotifierBot extends TelegramLongPollingBot {
     private void handle(Update update) {
         String text = update.getMessage().getText();
         String chatId = update.getMessage().getChatId().toString();
-        log.info(text);
+        log.info("User message - " + text + "; " + "User ID - " + chatId);
         if (text.contains("start")) {
             dataHolder.addSubscriber(chatId);
             pushMessage(Collections.singletonList(chatId), "You verified RestNotifier subscription");
