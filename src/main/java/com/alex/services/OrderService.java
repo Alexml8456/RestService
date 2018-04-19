@@ -17,11 +17,13 @@ import java.time.LocalDateTime;
 @Slf4j
 public class OrderService {
 
+    TradesHistory th = new TradesHistory();
+
     @Autowired
     private RestTemplate restTemplate;
 
-    @Autowired
-    private TelegramNotifierBot telegramNotifierBot;
+//    @Autowired
+//    private TelegramNotifierBot telegramNotifierBot;
 
     @Setter
     @Value("${bittrex.instrument}")
@@ -183,15 +185,23 @@ public class OrderService {
         allBitMexBuyAmount = allBitMexBuyAmount + buySum;
         bitMexDifference = allBitMexBuyAmount - allBitMexSellAmount;
 
+        th.getBuys().add(new TradesAmounts(buySum));
+        th.getSells().add(new TradesAmounts(sellSum));
+
+        if (th.getSells().size() == 6 || th.getBuys().size() == 6){
+            log.info("Trade buy amount - " + th.getBuys().stream().mapToDouble(TradesAmounts::getPrice).sum());
+            log.info("Trade sell amount - " + th.getSells().stream().mapToDouble(TradesAmounts::getPrice).sum());
+        }
+
         if (buySum > 10 || sellSum > 10) {
-//            log.info("-----------------" + bitMexInstrument + " Last trade history" + "----------------");
-//            log.info("Buy & Sell difference - " + "(" + BittrexService.round(bitMexDifference, 2) + ")");
-//            log.info("All buy amounts - " + BittrexService.round(allBitMexBuyAmount, 2));
-//            log.info("All sell amounts - " + BittrexService.round(allBitMexSellAmount, 2));
-//            log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
-//            log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
-//            log.info("Last price - " + BittrexService.round(price, 2));
-//            log.info("---------------------------------------------------------");
+            log.info("-----------------" + bitMexInstrument + " Last trade history" + "----------------");
+            log.info("Buy & Sell difference - " + "(" + BittrexService.round(bitMexDifference, 2) + ")");
+            log.info("All buy amounts - " + BittrexService.round(allBitMexBuyAmount, 2));
+            log.info("All sell amounts - " + BittrexService.round(allBitMexSellAmount, 2));
+            log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
+            log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
+            log.info("Last price - " + BittrexService.round(price, 2));
+            log.info("---------------------------------------------------------");
 
             LastBitmexTrades lbt = new LastBitmexTrades();
             lbt.setInstrument(bitMexInstrument);
@@ -204,18 +214,25 @@ public class OrderService {
             lbt.setPrice(BittrexService.round(price, 2));
             dataHolder.addBitmexTrade(lbt);
 
-            if (buySum > 100 || sellSum > 100) {
-                if (dataHolder.getSubscriptions().size() > 0) {
-                    telegramNotifierBot.pushMessage(dataHolder.getSubscriptions(),
-                            "-----" + bitMexInstrument + " Last trade history-----" + "\n" +
-                                    "Buy & Sell difference - " + "(" + BittrexService.round(bitMexDifference, 2) + ")" + ";\n" +
-                                    "All buy amounts - " + BittrexService.round(allBitMexBuyAmount, 2) + ";\n" +
-                                    "All sell amounts - " + BittrexService.round(allBitMexSellAmount, 2) + ";\n" +
-                                    "Buy amounts(Asks) - " + BittrexService.round(buySum, 2) + ";\n" +
-                                    "Sell amounts(Bids) - " + BittrexService.round(sellSum, 2) + ";\n" +
-                                    "Last price - " + BittrexService.round(price, 2) + ";");
-                }
-            }
+
+
+//            if (buySum > 100 || sellSum > 100) {
+//                if (dataHolder.getSubscriptions().size() > 0) {
+//                    telegramNotifierBot.pushMessage(dataHolder.getSubscriptions(),
+//                            "-----" + bitMexInstrument + " Last trade history-----" + "\n" +
+//                                    "Buy & Sell difference - " + "(" + BittrexService.round(bitMexDifference, 2) + ")" + ";\n" +
+//                                    "All buy amounts - " + BittrexService.round(allBitMexBuyAmount, 2) + ";\n" +
+//                                    "All sell amounts - " + BittrexService.round(allBitMexSellAmount, 2) + ";\n" +
+//                                    "Buy amounts(Asks) - " + BittrexService.round(buySum, 2) + ";\n" +
+//                                    "Sell amounts(Bids) - " + BittrexService.round(sellSum, 2) + ";\n" +
+//                                    "Last price - " + BittrexService.round(price, 2) + ";");
+//                }
+//            }
         }
+    }
+
+    @Scheduled(cron = "05 * * ? * *")
+    public void clearHistoryTest(){
+        th.clearTradesAmounts();
     }
 }

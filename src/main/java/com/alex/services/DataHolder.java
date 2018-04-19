@@ -3,6 +3,7 @@ package com.alex.services;
 import com.alex.model.LastBitmexTrades;
 import com.alex.model.LastOrders;
 import com.alex.model.LastTrades;
+import com.alex.model.TradesAmounts;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,13 @@ public class DataHolder {
 
     @Getter
     private List<LastTrades> lastTrades = new ArrayList<>();
+
+    @Getter
+    private List<TradesAmounts> tradesAmounts = new ArrayList<>();
+
+    public void addTrades(TradesAmounts tradesAmounts){
+        this.tradesAmounts.add(tradesAmounts);
+    }
 
     @Getter
     private List<String> subscriptions = new ArrayList<>();
@@ -55,5 +63,13 @@ public class DataHolder {
             log.error("History cannot be cleared");
         }
 
+    }
+
+    public void clearTradesAmounts(){
+        try {
+            this.tradesAmounts.clear();
+        } catch (Exception e){
+            log.error("Trade history cannot be cleared");
+        }
     }
 }
