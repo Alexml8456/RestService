@@ -60,7 +60,7 @@ public class OrderService {
     private BitmexService bitmexService;
 
     private int historyOf = 3;
-    private int historyOfBitMex = 11;
+    private int historyOfBitMex = 10;
 
     @Setter
     private boolean condition;
@@ -170,7 +170,7 @@ public class OrderService {
         dataHolder.clearDataHolder();
     }
 
-    @Scheduled(cron = "0/10 * * ? * *")
+    @Scheduled(cron = "5,15,25,35,45,55 * * ? * *")
     public void getBitMexMarketHistory() {
         double buySum;
         double sellSum;
@@ -231,7 +231,7 @@ public class OrderService {
         }
     }
 
-    @Scheduled(cron = "05 * * ? * *")
+    @Scheduled(cron = "08 * * ? * *")
     public void clearHistoryTest(){
         th.clearTradesAmounts();
     }
