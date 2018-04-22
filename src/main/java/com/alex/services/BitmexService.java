@@ -27,19 +27,17 @@ public class BitmexService {
 
 
     //Rest example - https://www.bitmex.com/api/v1/trade?symbol=XBT&count=500&reverse=true
+    //https://www.bitmex.com/api/v1/trade/?symbol=XBT&count=500&reverse=true&startTime=2018-04-20%2014:14:30&endTime=2018-04-20%2014:14:40
+
     private BitmexMarketHistory updateMarketHistory(String instrument, int seconds) {
 
-        LocalDateTime gmtTimeNow = DateTime.getGMTTimeMillis().minusSeconds(5);
-        LocalDateTime oldTime = gmtTimeNow.minusSeconds(seconds);
+        LocalDateTime gmtTimeNow = DateTime.getGMTTimeMillis().minusSeconds(2);
+        LocalDateTime endTime = DateTime.GMTTimeConverter(DateTime.ConvertTimeToString(gmtTimeNow));
+        LocalDateTime startTime = DateTime.GMTTimeConverter(DateTime.ConvertTimeToString(gmtTimeNow.minusSeconds(seconds))).minusNanos(1);
 
-        String resUrl = "https://www.bitmex.com/api/v1/trade/?symbol=XBT&count=500&reverse=true&startTime=2018-04-20 14:14:30&endTime=2018-04-20 14:14:40";
-
-//                publicApi.concat("trade/?")
-//                .concat("symbol=").concat("XBT").concat("&count=500&reverse=true")
-//                .concat("&").concat("startTime=").concat(DateTime.ConvertTimeToString(oldTime))
-//                .concat("&").concat("endTime=").concat(DateTime.ConvertTimeToString(gmtTimeNow));
-
-        log.info(resUrl);
+        String resUrl =
+                publicApi.concat("trade/?")
+                        .concat("symbol=").concat(instrument).concat("&count=500&reverse=true");
 
         String history = restTemplate.getForObject(resUrl, String.class);
 
@@ -48,29 +46,26 @@ public class BitmexService {
         try {
 
             JSONArray tradeHistory = new JSONArray(history);
-            //LocalDateTime gmtTimeNow = DateTime.getGMTTimeMillis();
 
             BigDecimal price = BigDecimal.valueOf(tradeHistory.getJSONObject(0).getDouble("price"));
             marketHistory.getPrices().add(new BitmexLastPrice(price));
 
             for (int i = 0; i < tradeHistory.length(); i++) {
-                //String time = tradeHistory.getJSONObject(i).get("timestamp").toString().replace("Z", "");
-                //LocalDateTime gmtTimeConverted = DateTime.GMTTimeConverter(time);
+                String time = tradeHistory.getJSONObject(i).get("timestamp").toString().replace("Z", "");
+                LocalDateTime gmtTimeConverted = DateTime.GMTTimeConverter(time);
 
-                //boolean condition = gmtTimeConverted.plusSeconds(seconds).isAfter(gmtTimeNow);
-                //if (condition) {
-                if (tradeHistory.getJSONObject(i).getString("side").equals("Buy")) {
-                    BigDecimal buyTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("size"));
-                    BigDecimal buyTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("homeNotional"));
-                    marketHistory.getBuys().add(new BitmexTradeQuantity(buyTrade, buyTotal));
-                    log.info("Buy - " + buyTotal);
-                } else if (tradeHistory.getJSONObject(i).getString("side").equals("Sell")) {
-                    BigDecimal sellTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("size"));
-                    BigDecimal sellTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("homeNotional"));
-                    marketHistory.getSells().add(new BitmexTradeQuantity(sellTrade, sellTotal));
-                    log.info("Sell - " + sellTotal);
+                boolean condition = gmtTimeConverted.isAfter(startTime) && gmtTimeConverted.isBefore(endTime);
+                if (condition) {
+                    if (tradeHistory.getJSONObject(i).getString("side").equals("Buy")) {
+                        BigDecimal buyTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("size"));
+                        BigDecimal buyTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("homeNotional"));
+                        marketHistory.getBuys().add(new BitmexTradeQuantity(buyTrade, buyTotal));
+                    } else if (tradeHistory.getJSONObject(i).getString("side").equals("Sell")) {
+                        BigDecimal sellTrade = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("size"));
+                        BigDecimal sellTotal = BigDecimal.valueOf(tradeHistory.getJSONObject(i).getDouble("homeNotional"));
+                        marketHistory.getSells().add(new BitmexTradeQuantity(sellTrade, sellTotal));
+                    }
                 }
-                //}
             }
 
         } catch (Exception e) {

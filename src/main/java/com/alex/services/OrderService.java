@@ -1,7 +1,6 @@
 package com.alex.services;
 
 import com.alex.model.*;
-import com.alex.telegram.TelegramNotifierBot;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,7 +59,7 @@ public class OrderService {
     private BitmexService bitmexService;
 
     private int historyOf = 3;
-    private int historyOfBitMex = 10;
+    private int historyOfBitMex = 5;
 
     @Setter
     private boolean condition;
@@ -170,7 +169,7 @@ public class OrderService {
         dataHolder.clearDataHolder();
     }
 
-    @Scheduled(cron = "5,15,25,35,45,55 * * ? * *")
+    @Scheduled(cron = "2,7,12,17,22,27,32,37,42,47,52,57 * * ? * *")
     public void getBitMexMarketHistory() {
         double buySum;
         double sellSum;
@@ -188,7 +187,7 @@ public class OrderService {
         th.getBuys().add(new TradesAmounts(buySum));
         th.getSells().add(new TradesAmounts(sellSum));
 
-        if (th.getSells().size() == 6 || th.getBuys().size() == 6){
+        if (th.getSells().size() == 12 || th.getBuys().size() == 12) {
             log.info("Trade buy amount - " + th.getBuys().stream().mapToDouble(TradesAmounts::getPrice).sum());
             log.info("Trade sell amount - " + th.getSells().stream().mapToDouble(TradesAmounts::getPrice).sum());
         }
@@ -215,7 +214,6 @@ public class OrderService {
             dataHolder.addBitmexTrade(lbt);
 
 
-
 //            if (buySum > 100 || sellSum > 100) {
 //                if (dataHolder.getSubscriptions().size() > 0) {
 //                    telegramNotifierBot.pushMessage(dataHolder.getSubscriptions(),
@@ -231,8 +229,15 @@ public class OrderService {
         }
     }
 
-    @Scheduled(cron = "08 * * ? * *")
-    public void clearHistoryTest(){
+    @Scheduled(cron = "04 * * ? * *")
+    public void clearHistoryTest() {
         th.clearTradesAmounts();
+    }
+
+    @Scheduled(cron = "5 0 0 ? * *")
+    public void cleanDayHistory() {
+        this.allBitMexBuyAmount = 0;
+        this.allBitMexSellAmount = 0;
+        this.difference = 0;
     }
 }

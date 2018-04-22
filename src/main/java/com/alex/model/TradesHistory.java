@@ -3,14 +3,13 @@ package com.alex.model;
 import lombok.Data;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.ArrayList;
 
 @Data
 @Slf4j
 public class TradesHistory {
-    private Set<TradesAmounts> buys = new HashSet<>();
-    private Set<TradesAmounts> sells = new HashSet<>();
+    private ArrayList<TradesAmounts> buys = new ArrayList<>();
+    private ArrayList<TradesAmounts> sells = new ArrayList<>();
 
     public void clearTradesAmounts(){
         try {
