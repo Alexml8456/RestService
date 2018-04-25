@@ -1,17 +1,22 @@
 package com.alex.services;
 
 import com.alex.interfaces.BasicProcessingService;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 @Service
 @Slf4j
 public class GdaxProcessingService implements BasicProcessingService {
+
+    @Getter
+    private LocalDateTime lastTradeTime;
 
     private DateTimeFormatter formatter = DateTimeFormatter.ofPattern("uuuu-MM-dd'T'HH:mm:ss");
 
@@ -26,7 +31,8 @@ public class GdaxProcessingService implements BasicProcessingService {
             BigDecimal volume = BigDecimal.valueOf(object.getDouble("last_size"));
             String direction = object.getString("side");
             BigDecimal baseVolume = volume.multiply(rate);
-            log.info("instrument = {}; rate = {}; timestamp = {}", ticker, rate, timestamp);
+            log.info("instrument = {}; direction = {}; volume = {}; rate = {}; timestamp = {}", ticker, direction, baseVolume, rate, timestamp);
+            lastTradeTime = LocalDateTime.now(ZoneId.of("GMT-0"));
         }
     }
 

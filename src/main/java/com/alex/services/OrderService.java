@@ -69,7 +69,7 @@ public class OrderService {
         condition = instrument.split("-")[0].equalsIgnoreCase("USDT");
     }
 
-    @Scheduled(cron = "20 1/2 * * * ?")
+/*    @Scheduled(cron = "20 1/2 * * * ?")
     public void getBook() {
         double bidsSum;
         double asksSum;
@@ -104,14 +104,14 @@ public class OrderService {
             double firstAsk = BittrexService.round(fistAsk, 2);
 
 
-//            log.info("--------------------" + instrument + " Last orders" + "------------------");
-//            log.info("Bid(Sell) first - " + firstBid);
-//            log.info("Ask(Buy) first - " + firstAsk);
-//            log.info("Bids amount(Sell) - " + bidSum);
-//            log.info("Asks amount(Buy) - " + askSum);
-//            log.info("First 3 Bids(Sell) - " + firsBids);
-//            log.info("First 3 Asks(Buy) - " + firstAsks);
-//            log.info("---------------------------------------------------------");
+            log.info("--------------------" + instrument + " Last orders" + "------------------");
+            log.info("Bid(Sell) first - " + firstBid);
+            log.info("Ask(Buy) first - " + firstAsk);
+            log.info("Bids amount(Sell) - " + bidSum);
+            log.info("Asks amount(Buy) - " + askSum);
+            log.info("First 3 Bids(Sell) - " + firsBids);
+            log.info("First 3 Asks(Buy) - " + firstAsks);
+            log.info("---------------------------------------------------------");
             LastOrders lo = new LastOrders();
             lo.setTimestamp(LocalDateTime.now());
             lo.setInstrument(instrument);
@@ -123,9 +123,9 @@ public class OrderService {
             lo.setFirstAsk(firstAsk);
             dataHolder.addOrder(lo);
         }
-    }
+    }*/
 
-    @Scheduled(cron = "50 1/3 * * * ?")
+/*    @Scheduled(cron = "50 1/3 * * * ?")
     public void getMarketHistory() {
         double buySum;
         double sellSum;
@@ -145,13 +145,13 @@ public class OrderService {
         }
 
         if (buySum > 1 || sellSum > 1) {
-//            log.info("-----------------" + instrument + " Last trade history" + "----------------");
-//            log.info("Buy & Sell difference - " + "(" + BittrexService.round(difference, 2) + ")");
-//            log.info("All buy amounts - " + BittrexService.round(allBuyAmount, 2));
-//            log.info("All sell amounts - " + BittrexService.round(allSellAmount, 2));
-//            log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
-//            log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
-//            log.info("---------------------------------------------------------");
+            log.info("-----------------" + instrument + " Last trade history" + "----------------");
+            log.info("Buy & Sell difference - " + "(" + BittrexService.round(difference, 2) + ")");
+            log.info("All buy amounts - " + BittrexService.round(allBuyAmount, 2));
+            log.info("All sell amounts - " + BittrexService.round(allSellAmount, 2));
+            log.info("Buy amounts(Asks) - " + BittrexService.round(buySum, 2));
+            log.info("Sell amounts(Bids) - " + BittrexService.round(sellSum, 2));
+            log.info("---------------------------------------------------------");
             LastTrades lt = new LastTrades();
             lt.setInstrument(instrument);
             lt.setTimestamp(LocalDateTime.now());
@@ -162,9 +162,9 @@ public class OrderService {
             lt.setSellSum(BittrexService.round(sellSum, 2));
             dataHolder.addTrade(lt);
         }
-    }
+    }*/
 
-    @Scheduled(cron = "30 30 23 ? * *")
+/*    @Scheduled(cron = "30 30 23 ? * *")
     public void clearHistory() {
         dataHolder.clearDataHolder();
     }
@@ -214,30 +214,30 @@ public class OrderService {
             dataHolder.addBitmexTrade(lbt);
 
 
-//            if (buySum > 100 || sellSum > 100) {
-//                if (dataHolder.getSubscriptions().size() > 0) {
-//                    telegramNotifierBot.pushMessage(dataHolder.getSubscriptions(),
-//                            "-----" + bitMexInstrument + " Last trade history-----" + "\n" +
-//                                    "Buy & Sell difference - " + "(" + BittrexService.round(bitMexDifference, 2) + ")" + ";\n" +
-//                                    "All buy amounts - " + BittrexService.round(allBitMexBuyAmount, 2) + ";\n" +
-//                                    "All sell amounts - " + BittrexService.round(allBitMexSellAmount, 2) + ";\n" +
-//                                    "Buy amounts(Asks) - " + BittrexService.round(buySum, 2) + ";\n" +
-//                                    "Sell amounts(Bids) - " + BittrexService.round(sellSum, 2) + ";\n" +
-//                                    "Last price - " + BittrexService.round(price, 2) + ";");
-//                }
-//            }
+            if (buySum > 100 || sellSum > 100) {
+                if (dataHolder.getSubscriptions().size() > 0) {
+                    telegramNotifierBot.pushMessage(dataHolder.getSubscriptions(),
+                            "-----" + bitMexInstrument + " Last trade history-----" + "\n" +
+                                    "Buy & Sell difference - " + "(" + BittrexService.round(bitMexDifference, 2) + ")" + ";\n" +
+                                    "All buy amounts - " + BittrexService.round(allBitMexBuyAmount, 2) + ";\n" +
+                                    "All sell amounts - " + BittrexService.round(allBitMexSellAmount, 2) + ";\n" +
+                                    "Buy amounts(Asks) - " + BittrexService.round(buySum, 2) + ";\n" +
+                                    "Sell amounts(Bids) - " + BittrexService.round(sellSum, 2) + ";\n" +
+                                    "Last price - " + BittrexService.round(price, 2) + ";");
+                }
+            }
         }
-    }
+    }*/
 
-    @Scheduled(cron = "04 * * ? * *")
-    public void clearHistoryTest() {
-        th.clearTradesAmounts();
-    }
-
-    @Scheduled(cron = "5 0 0 ? * *")
-    public void cleanDayHistory() {
-        this.allBitMexBuyAmount = 0;
-        this.allBitMexSellAmount = 0;
-        this.difference = 0;
-    }
+//    @Scheduled(cron = "04 * * ? * *")
+//    public void clearHistoryTest() {
+//        th.clearTradesAmounts();
+//    }
+//
+//    @Scheduled(cron = "5 0 0 ? * *")
+//    public void cleanDayHistory() {
+//        this.allBitMexBuyAmount = 0;
+//        this.allBitMexSellAmount = 0;
+//        this.difference = 0;
+//    }
 }
