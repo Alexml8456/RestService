@@ -18,11 +18,10 @@ public class Main {
             });
 
             // send message to websocket
-            String message = "{\"op\": \"help\"}";
-            clientEndPoint.sendMessage(message);
+            clientEndPoint.sendMessage("{\"op\": \"subscribe\", \"args\": [\"trade:XBTUSD\",\"instrument:XBTUSD\"]}");
 
             // wait 5 seconds for messages from websocket
-            Thread.sleep(5000);
+            Thread.sleep(50000);
             clientEndPoint.userSession.close();
 
         } catch (InterruptedException ex) {
