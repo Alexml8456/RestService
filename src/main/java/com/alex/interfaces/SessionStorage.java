@@ -6,4 +6,3 @@ public interface SessionStorage<T> {
 
     T getSession();
 }
-

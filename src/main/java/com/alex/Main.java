@@ -11,14 +11,10 @@ public class Main {
             final WebsocketClientEndpoint clientEndPoint = new WebsocketClientEndpoint(new URI("wss://www.bitmex.com/realtime"));
 
             // add listener
-            clientEndPoint.addMessageHandler(new WebsocketClientEndpoint.MessageHandler() {
-                public void handleMessage(String message) {
-                    System.out.println(message);
-                }
-            });
+            clientEndPoint.addMessageHandler(System.out::println);
 
             // send message to websocket
-            clientEndPoint.sendMessage("{\"op\": \"subscribe\", \"args\": [\"trade:XBTUSD\",\"instrument:XBTUSD\"]}");
+            clientEndPoint.sendMessage("{\"op\": \"subscribe\", \"args\": [\"trade:XBTUSD\"]}");
 
             // wait 5 seconds for messages from websocket
             Thread.sleep(50000);

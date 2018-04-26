@@ -5,8 +5,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.WebSocketSession;
 
 @Component
-public class GdaxSessionStorage implements SessionStorage<WebSocketSession> {
-
+public class BitmexSessionStorage implements SessionStorage<WebSocketSession> {
     private WebSocketSession session;
 
     @Override
