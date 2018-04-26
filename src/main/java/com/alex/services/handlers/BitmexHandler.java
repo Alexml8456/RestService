@@ -1,21 +1,21 @@
 package com.alex.services.handlers;
 
+import com.alex.commands.BitmexCommands;
 import com.alex.interfaces.SessionStorage;
+import com.alex.services.BitmexProcessingService;
 import lombok.extern.slf4j.Slf4j;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.socket.*;
 
 @Slf4j
 public class BitmexHandler implements WebSocketHandler {
-    @Value("${bitmex.wss.instrument}")
-    private String bitmexInstrument;
-
-
     private SessionStorage sessionStorage;
+    private String ticker;
+    private BitmexProcessingService processingService;
 
-    public BitmexHandler(SessionStorage sessionStorage) {
+    public BitmexHandler(SessionStorage sessionStorage, String ticker, BitmexProcessingService processingService) {
         this.sessionStorage = sessionStorage;
+        this.ticker = ticker;
+        this.processingService = processingService;
     }
 
     @Override
@@ -24,14 +24,16 @@ public class BitmexHandler implements WebSocketHandler {
         sessionStorage.storeSession(session);
         session.setTextMessageSizeLimit(1000000);
         session.setBinaryMessageSizeLimit(1000000);
-        session.sendMessage(new TextMessage("{\"op\": \"subscribe\", \"args\": [\"trade:" + bitmexInstrument + "]}"));
+        log.info(BitmexCommands.TRADE_SUBSCRIBE_COMMAND);
+        session.sendMessage(new TextMessage(BitmexCommands.TRADE_SUBSCRIBE_COMMAND.replace("{ticker}", ticker)));
     }
 
     @Override
     public void handleMessage(WebSocketSession webSocketSession, WebSocketMessage<?> webSocketMessage) throws Exception {
         String message = webSocketMessage.getPayload().toString();
-        JSONObject object = new JSONObject(message);
-        log.info(object.toString());
+        if (message.contains("data")){
+            this.processingService.process(message, ticker);
+        }
     }
 
     @Override

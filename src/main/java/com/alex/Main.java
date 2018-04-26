@@ -1,31 +1,14 @@
 package com.alex;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.URISyntaxException;
-
 public class Main {
     public static void main(String[] args) {
-        try {
-            // open websocket
-            final WebsocketClientEndpoint clientEndPoint = new WebsocketClientEndpoint(new URI("wss://www.bitmex.com/realtime"));
+        String inst = "XBTUSD";
 
-            // add listener
-            clientEndPoint.addMessageHandler(System.out::println);
+        String one = "{\"op\": \"subscribe\", \"args\": [\"trade:" + inst + "\"]}";
+        String two = "{\"op\": \"subscribe\", \"args\": [\"trade:XBTUSD\"]}";
 
-            // send message to websocket
-            clientEndPoint.sendMessage("{\"op\": \"subscribe\", \"args\": [\"trade:XBTUSD\"]}");
+        System.out.println(one);
+        System.out.println(two);
 
-            // wait 5 seconds for messages from websocket
-            Thread.sleep(50000);
-            clientEndPoint.userSession.close();
-
-        } catch (InterruptedException ex) {
-            System.err.println("InterruptedException exception: " + ex.getMessage());
-        } catch (URISyntaxException ex) {
-            System.err.println("URISyntaxException exception: " + ex.getMessage());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

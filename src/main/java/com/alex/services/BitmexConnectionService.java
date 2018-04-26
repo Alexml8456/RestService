@@ -15,16 +15,20 @@ import java.io.IOException;
 public class BitmexConnectionService {
     @Value("${address.bitmex}")
     private String bitmexAdress;
+    @Value("${bitmex.wss.instrument}")
+    private String instrument;
 
+    @Autowired
+    private BitmexProcessingService processingService;
     @Autowired
     private BitmexSessionStorage sessionStorage;
 
     @Getter
     private WebSocketConnectionManager connectionManager;
 
-    public void connect() throws IOException, DeploymentException{
+    public void connect() throws IOException, DeploymentException {
         StandardWebSocketClient client = new StandardWebSocketClient();
-        BitmexHandler handler = new BitmexHandler(sessionStorage);
+        BitmexHandler handler = new BitmexHandler(sessionStorage, instrument, processingService);
         connectionManager = new WebSocketConnectionManager(client, handler, bitmexAdress);
         connectionManager.start();
     }
