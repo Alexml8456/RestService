@@ -95,10 +95,9 @@ public class BitmexSchedulingService {
         return session != null && session.isOpen();
     }
 
-    @Scheduled(cron = "0 59 * ? * *")
+    @Scheduled(cron = "0 58 * ? * *")
     public void stopSession() throws IOException {
         sessionStorage.getSession().close();
         log.info("Session closed");
     }
-
 }

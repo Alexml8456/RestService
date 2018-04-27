@@ -26,7 +26,7 @@ public class BitmexProcessingService {
                 double price = trades.getJSONObject(i).getDouble("price");
                 BigDecimal size = BigDecimal.valueOf(trades.getJSONObject(i).getDouble("size"));
                 BigDecimal total = BigDecimal.valueOf(trades.getJSONObject(i).getDouble("homeNotional"));
-                String time = trades.getJSONObject(i).getString("timestamp");
+                LocalDateTime time = DateTime.GMTTimeConverter(trades.getJSONObject(i).getString("timestamp").replace("Z", ""));
                 log.info("instrument = {}; direction = {}; price = {}; size = {}; total = {}; timestamp = {}", ticker, side, price, size, total, time);
                 lastTradeTime = DateTime.getGMTTimeMillis();
             }
