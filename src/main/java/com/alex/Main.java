@@ -1,19 +1,19 @@
 package com.alex;
 
 import com.alex.utils.DateTime;
+import org.springframework.util.MultiValueMap;
 
 import java.time.LocalDateTime;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Objects;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
     public static void main(String[] args) {
 
         Map<LocalDateTime,TradeData> myMap = new ConcurrentHashMap<LocalDateTime,TradeData>();
-        myMap.put(DateTime.GMTTimeConverter("2018-04-27T13:57:57.780"), new TradeData("XBTUSD","Sell",9232.5,22381.0,0.11285902));
-        myMap.put(DateTime.GMTTimeConverter("2018-04-27T13:57:57.781"), new TradeData("XBTUSD","Buy",9359.0,933.0,1.0685));
+        //myMap.put(DateTime.GMTTimeConverter("2018-04-27T13:57:57.780"), new TradeData("XBTUSD","Sell",9232.5,22381.0,0.11285902));
+        //myMap.put(DateTime.GMTTimeConverter("2018-04-27T13:57:57.781"), new TradeData("XBTUSD","Buy",9359.0,933.0,1.0685));
         for(Iterator<Map.Entry<LocalDateTime, TradeData>> it = myMap.entrySet().iterator(); it.hasNext();){
             Map.Entry<LocalDateTime, TradeData> entry = it.next();
             if (Objects.equals(entry.getValue().getDirection(), "Sell")){
@@ -44,5 +44,18 @@ public class Main {
         }
 
         System.out.println(map.values());
+
+
+        Map<LocalDateTime,ArrayList<String>> multiMap = new ConcurrentHashMap<LocalDateTime,ArrayList<String>>();
+        multiMap.put(DateTime.GMTTimeConverter("2018-04-27T13:57:57.780"),new ArrayList<String>(Collections.singleton("asdas")));
+        multiMap.put(DateTime.GMTTimeConverter("2018-04-27T13:57:57.783"),new ArrayList<String>(Collections.singleton("asdas")));
+        if (multiMap.containsKey(DateTime.GMTTimeConverter("2018-04-27T13:57:57.780"))){
+            multiMap.get(DateTime.GMTTimeConverter("2018-04-27T13:57:57.780")).add("3123123");
+        }
+        System.out.println(multiMap.toString());
+
+        LocalDateTime test = DateTime.GMTTimeConverter("2018-04-27T13:57:57.015").truncatedTo(ChronoUnit.MINUTES);
+        System.out.println(test);
+
     }
 }

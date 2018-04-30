@@ -1,20 +1,31 @@
 package com.alex.services;
 
+import com.alex.TradeData;
 import com.alex.utils.DateTime;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
 @Slf4j
 public class BitmexProcessingService {
     @Getter
     private LocalDateTime lastTradeTime;
+
+    @Autowired
+    private ThreadPoolTaskExecutor executor;
+
+    public Map<LocalDateTime, JSONArray> tradesHistory = new ConcurrentHashMap<LocalDateTime, JSONArray>();
 
     public void process(String message, String ticker) {
         if (isIdInMessage(message)) {
@@ -27,11 +38,23 @@ public class BitmexProcessingService {
                 BigDecimal size = BigDecimal.valueOf(trades.getJSONObject(i).getDouble("size"));
                 BigDecimal total = BigDecimal.valueOf(trades.getJSONObject(i).getDouble("homeNotional"));
                 LocalDateTime time = DateTime.GMTTimeConverter(trades.getJSONObject(i).getString("timestamp").replace("Z", ""));
-                log.info("instrument = {}; direction = {}; price = {}; size = {}; total = {}; timestamp = {}", ticker, side, price, size, total, time);
+                //log.info("instrument = {}; direction = {}; price = {}; size = {}; total = {}; timestamp = {}", ticker, side, price, size, total, time);
                 lastTradeTime = DateTime.getGMTTimeMillis();
+                String finalTicker = ticker;
+                executor.submit(() -> internalProcess(finalTicker, side, price, size, total, time));
             }
         }
     }
+
+    private void internalProcess(String ticker, String side, double price, BigDecimal size, BigDecimal total, LocalDateTime time) {
+        LocalDateTime key = time.truncatedTo(ChronoUnit.MINUTES);
+        if (tradesHistory.containsKey(key)) {
+            tradesHistory.get(key).put(new TradeData(ticker, side, price, size, total, time));
+        } else {
+            tradesHistory.put(key, new TradeData(ticker, side, price, size, total, time));
+        }
+    }
+
 
     private boolean isIdInMessage(String message) {
         return message.contains("trdMatchID");
