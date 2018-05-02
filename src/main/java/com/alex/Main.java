@@ -1,7 +1,8 @@
 package com.alex;
 
 import com.alex.utils.DateTime;
-import org.springframework.util.MultiValueMap;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -10,6 +11,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Main {
     public static void main(String[] args) {
+
+
+        JSONObject jo = new JSONObject();
+        JSONArray ja = new JSONArray();
+// populate the array
+        jo.put("arrayName",ja);
+        jo.put("arrayName",ja);
+
+        System.out.println(DateTime.GMTTimeConverter("2018-05-02T11:03:03").truncatedTo(ChronoUnit.MINUTES));
+        System.out.println(DateTime.getGMTTimeToMinutes());
 
         Map<LocalDateTime,TradeData> myMap = new ConcurrentHashMap<LocalDateTime,TradeData>();
         //myMap.put(DateTime.GMTTimeConverter("2018-04-27T13:57:57.780"), new TradeData("XBTUSD","Sell",9232.5,22381.0,0.11285902));

@@ -95,7 +95,7 @@ public class BitmexSchedulingService {
         return session != null && session.isOpen();
     }
 
-    @Scheduled(cron = "0 05 * ? * *")
+    @Scheduled(cron = "0 04 * ? * *")
     public void stopSession() throws IOException {
         sessionStorage.getSession().close();
         log.info("Session closed");
@@ -103,6 +103,12 @@ public class BitmexSchedulingService {
 
     @Scheduled(cron = "04 * * ? * *")
     public void test(){
-        log.info("Map size = {}", processingService.tradesHistory.size());
+        LocalDateTime currentTime = DateTime.getGMTTimeToMinutes();
+        LocalDateTime key = currentTime.minusMinutes(1);
+        if(processingService.tradesHistory.containsKey(key)){
+            for (int i = 0; i < processingService.tradesHistory.get(key).length(); i++) {
+                log.info(String.valueOf(processingService.tradesHistory.get(key).getJSONObject(i)));
+            }
+        }
     }
 }

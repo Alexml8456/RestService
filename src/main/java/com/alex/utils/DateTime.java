@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Slf4j
 public class DateTime {
@@ -27,5 +28,9 @@ public class DateTime {
 
     public static String ConvertTimeToString(LocalDateTime time) {
         return time.format(DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss"));
+    }
+
+    public static LocalDateTime getGMTTimeToMinutes(){
+        return LocalDateTime.parse(ConvertTimeToString(getGMTTimeMillis()), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")).truncatedTo(ChronoUnit.MINUTES);
     }
 }
