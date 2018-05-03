@@ -12,27 +12,8 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Main {
     public static void main(String[] args) {
 
-
-        JSONObject jo = new JSONObject();
-        JSONArray ja = new JSONArray();
-// populate the array
-        jo.put("arrayName",ja);
-        jo.put("arrayName",ja);
-
         System.out.println(DateTime.GMTTimeConverter("2018-05-02T11:03:03").truncatedTo(ChronoUnit.MINUTES));
         System.out.println(DateTime.getGMTTimeToMinutes());
-
-        Map<LocalDateTime,TradeData> myMap = new ConcurrentHashMap<LocalDateTime,TradeData>();
-        //myMap.put(DateTime.GMTTimeConverter("2018-04-27T13:57:57.780"), new TradeData("XBTUSD","Sell",9232.5,22381.0,0.11285902));
-        //myMap.put(DateTime.GMTTimeConverter("2018-04-27T13:57:57.781"), new TradeData("XBTUSD","Buy",9359.0,933.0,1.0685));
-        for(Iterator<Map.Entry<LocalDateTime, TradeData>> it = myMap.entrySet().iterator(); it.hasNext();){
-            Map.Entry<LocalDateTime, TradeData> entry = it.next();
-            if (Objects.equals(entry.getValue().getDirection(), "Sell")){
-                System.out.println(entry.getValue().getSize());
-            }
-            //System.out.println(entry.getValue().getSize());
-        }
-        //System.out.println(myMap);
 
         ConcurrentHashMap<String, Integer> map = new ConcurrentHashMap<String, Integer>();
         map.put("One", 1);

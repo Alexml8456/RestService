@@ -1,6 +1,6 @@
 package com.alex.services;
 
-import com.alex.TradeData;
+import com.alex.model.TradesBitmexHistory;
 import com.alex.utils.DateTime;
 import lombok.Data;
 import lombok.Getter;
@@ -51,27 +51,16 @@ public class BitmexProcessingService {
 
     private void internalProcess(String ticker, String side, double price, BigDecimal size, BigDecimal total, LocalDateTime time) {
         LocalDateTime key = time.truncatedTo(ChronoUnit.MINUTES);
-        JSONObject dataObject = new JSONObject();
+        TradesBitmexHistory tradesBitmexHistory = new TradesBitmexHistory();
         if (tradesHistory.containsKey(key)) {
-            dataObject.put("instrument", ticker);
-            dataObject.put("direction", side);
-            dataObject.put("price", price);
-            dataObject.put("size", size);
-            dataObject.put("total", total);
-            dataObject.put("time", time);
-            tradesHistory.get(key).put(dataObject);
+            tradesBitmexHistory.addData(ticker, side, price, size, total, time);
+            tradesHistory.get(key).put(tradesBitmexHistory.getDataObject());
         } else {
             JSONArray dataArray = new JSONArray();
-            dataObject.put("instrument", ticker);
-            dataObject.put("direction", side);
-            dataObject.put("price", price);
-            dataObject.put("size", size);
-            dataObject.put("total", total);
-            dataObject.put("time", time);
-            tradesHistory.put(key, dataArray.put(dataObject));
+            tradesBitmexHistory.addData(ticker, side, price, size, total, time);
+            tradesHistory.put(key, dataArray.put(tradesBitmexHistory.getDataObject()));
         }
     }
-
 
     private boolean isIdInMessage(String message) {
         return message.contains("trdMatchID");
