@@ -1,7 +1,10 @@
 package com.alex.services;
 
+import com.alex.model.BitmexMarketHistory;
+import com.alex.model.BitmexTradeQuantity;
 import com.alex.model.TradesBitmexHistory;
 import com.alex.utils.DateTime;
+import com.alex.utils.Rounding;
 import lombok.Data;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +30,8 @@ public class BitmexProcessingService {
     @Autowired
     private ThreadPoolTaskExecutor executor;
 
-    public Map<LocalDateTime, JSONArray> tradesHistory = new ConcurrentHashMap<LocalDateTime, JSONArray>();
+    @Getter
+    private Map<LocalDateTime, JSONArray> tradesHistory = new ConcurrentHashMap<LocalDateTime, JSONArray>();
 
     public void process(String message, String ticker) {
         if (isIdInMessage(message)) {
@@ -59,6 +63,29 @@ public class BitmexProcessingService {
             JSONArray dataArray = new JSONArray();
             tradesBitmexHistory.addData(ticker, side, price, size, total, time);
             tradesHistory.put(key, dataArray.put(tradesBitmexHistory.getDataObject()));
+        }
+    }
+
+    public void getTradeData() {
+        LocalDateTime currentTime = DateTime.getGMTTimeToMinutes();
+        LocalDateTime key = currentTime.minusMinutes(1);
+        if (this.tradesHistory.containsKey(key)) {
+            BitmexMarketHistory marketHistory = new BitmexMarketHistory();
+            for (int i = 0; i < this.tradesHistory.get(key).length(); i++) {
+                if (this.tradesHistory.get(key).getJSONObject(i).getString("direction").equals("Buy")) {
+                    BigDecimal buyTrade = BigDecimal.valueOf(this.tradesHistory.get(key).getJSONObject(i).getDouble("size"));
+                    BigDecimal buyTotal = BigDecimal.valueOf(this.tradesHistory.get(key).getJSONObject(i).getDouble("total"));
+                    marketHistory.getBuys().add(new BitmexTradeQuantity(buyTrade, buyTotal));
+                } else if (this.tradesHistory.get(key).getJSONObject(i).getString("direction").equals("Sell")) {
+                    BigDecimal sellTrade = BigDecimal.valueOf(this.tradesHistory.get(key).getJSONObject(i).getDouble("size"));
+                    BigDecimal sellTotal = BigDecimal.valueOf(this.tradesHistory.get(key).getJSONObject(i).getDouble("total"));
+                    marketHistory.getSells().add(new BitmexTradeQuantity(sellTrade, sellTotal));
+                }
+            }
+            double buySum = marketHistory.getBuys().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
+            double sellSum = marketHistory.getSells().stream().mapToDouble(value -> value.getQuantity().doubleValue()).sum();
+            double volume = buySum + sellSum;
+            log.info("Buy amount = {}; Sell amount = {}; Volume = {}", Rounding.round(buySum, 2), Rounding.round(sellSum, 2), Rounding.round(volume, 2));
         }
     }
 

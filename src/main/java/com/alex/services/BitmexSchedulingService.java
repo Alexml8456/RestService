@@ -2,6 +2,7 @@ package com.alex.services;
 
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -12,6 +13,8 @@ import javax.websocket.DeploymentException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Iterator;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
@@ -95,20 +98,26 @@ public class BitmexSchedulingService {
         return session != null && session.isOpen();
     }
 
-    @Scheduled(cron = "0 05 * ? * *")
+    @Scheduled(cron = "* 0/5 * ? * *")
+    public void cleanHistory() {
+        LocalDateTime fiveMinutesBeforeNow = DateTime.getGMTTimeToMinutes().minusMinutes(5);
+        for (Iterator<Map.Entry<LocalDateTime, JSONArray>> it = processingService.getTradesHistory().entrySet().iterator(); it.hasNext(); ) {
+            Map.Entry<LocalDateTime, JSONArray> entry = it.next();
+            if (entry.getKey().isBefore(fiveMinutesBeforeNow)) {
+                it.remove();
+                log.info("Old trades removed!");
+            }
+        }
+    }
+
+    @Scheduled(cron = "0 20 * ? * *")
     public void stopSession() throws IOException {
         sessionStorage.getSession().close();
         log.info("Session closed");
     }
 
-    @Scheduled(cron = "04 * * ? * *")
-    public void test(){
-        LocalDateTime currentTime = DateTime.getGMTTimeToMinutes();
-        LocalDateTime key = currentTime.minusMinutes(1);
-        if(processingService.tradesHistory.containsKey(key)){
-            for (int i = 0; i < processingService.tradesHistory.get(key).length(); i++) {
-                log.info(String.valueOf(processingService.tradesHistory.get(key).getJSONObject(i)));
-            }
-        }
+    @Scheduled(cron = "5 * * ? * *")
+    public void test() {
+        processingService.getTradeData();
     }
 }
