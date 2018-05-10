@@ -27,9 +27,20 @@ public class BitmexConnectionService {
     private WebSocketConnectionManager connectionManager;
 
     public void connect() throws IOException, DeploymentException {
-        StandardWebSocketClient client = new StandardWebSocketClient();
-        BitmexHandler handler = new BitmexHandler(sessionStorage, instrument, processingService);
-        connectionManager = new WebSocketConnectionManager(client, handler, bitmexAdress);
-        connectionManager.start();
+        try {
+
+            if (sessionStorage.isConnecting()) {
+                return;
+            }
+
+            sessionStorage.setConnecting(true);
+
+            StandardWebSocketClient client = new StandardWebSocketClient();
+            BitmexHandler handler = new BitmexHandler(sessionStorage, instrument, processingService);
+            connectionManager = new WebSocketConnectionManager(client, handler, bitmexAdress);
+            connectionManager.start();
+        } catch (Exception e) {
+            sessionStorage.setConnecting(false);
+        }
     }
 }

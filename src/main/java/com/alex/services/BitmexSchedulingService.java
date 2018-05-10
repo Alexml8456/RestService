@@ -55,10 +55,11 @@ public class BitmexSchedulingService {
                 log.warn("Reconnecting");
                 try {
                     if (sessionStorage.getSession() != null && sessionStorage.getSession().isOpen()) {
+                        log.info("Closing session");
                         sessionStorage.getSession().close();
                     }
                     connectionManager.get().stop();
-                    SECONDS.sleep(1);
+                    SECONDS.sleep(2);
                     connect();
                 } catch (Exception e) {
                     log.error("Can't reconnect. " + e.getMessage(), e);
@@ -85,17 +86,17 @@ public class BitmexSchedulingService {
 
     private void connect() throws IOException, DeploymentException, InterruptedException {
         connectionService.connect();
-        SECONDS.sleep(1);
+        SECONDS.sleep(2);
         if (isConnected()) {
             log.info("Connected");
         } else {
-            log.error("Can't reconnect");
+            log.error("Can't connect");
         }
     }
 
     private boolean isConnected() {
         WebSocketSession session = sessionStorage.getSession();
-        return session != null && session.isOpen();
+        return session != null && (session.isOpen() || sessionStorage.isConnecting());
     }
 
     @Scheduled(cron = "* 0/5 * ? * *")
