@@ -66,6 +66,7 @@ public class BitmexProcessingService {
         }
     }
 
+
     public void getTradeData() {
         LocalDateTime currentTime = DateTime.getGMTTimeToMinutes();
         LocalDateTime key = currentTime.minusMinutes(1);
