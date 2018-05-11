@@ -30,6 +30,12 @@ public class BitmexProcessingService {
     @Autowired
     private ThreadPoolTaskExecutor executor;
 
+    @Autowired
+    private CandleGenerationService candleGenerationService;
+
+    @Autowired
+    private ThreadPoolTaskExecutor taskExecutor;
+
     @Getter
     private Map<LocalDateTime, JSONArray> tradesHistory = new ConcurrentHashMap<LocalDateTime, JSONArray>();
 
@@ -47,7 +53,8 @@ public class BitmexProcessingService {
                 //log.info("instrument = {}; direction = {}; price = {}; size = {}; total = {}; timestamp = {}", ticker, side, price, size, total, time);
                 lastTradeTime = DateTime.getGMTTimeMillis();
                 String finalTicker = ticker;
-                executor.submit(() -> internalProcess(finalTicker, side, price, size, total, time));
+                //executor.submit(() -> internalProcess(finalTicker, side, price, size, total, time));
+                taskExecutor.submit(() -> candleGenerationService.generate(BigDecimal.valueOf(price),time));
             }
         }
     }

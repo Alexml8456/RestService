@@ -20,9 +20,9 @@ public class CandleGeneratorConfiguration {
     @Bean
     public ThreadPoolTaskExecutor taskExecutor() {
         ThreadPoolTaskExecutor accountsTaskExecutor = new ThreadPoolTaskExecutor();
-        accountsTaskExecutor.setCorePoolSize(100);
-        accountsTaskExecutor.setMaxPoolSize(100);
-        accountsTaskExecutor.setQueueCapacity(10000);
+        accountsTaskExecutor.setCorePoolSize(1);
+        accountsTaskExecutor.setMaxPoolSize(1);
+        accountsTaskExecutor.setQueueCapacity(1000);
         accountsTaskExecutor.initialize();
         return accountsTaskExecutor;
     }

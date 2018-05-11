@@ -1,5 +1,6 @@
 package com.alex.services;
 
+import com.alex.model.Candle;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -30,6 +31,9 @@ public class BitmexSchedulingService {
     private BitmexSessionStorage sessionStorage;
     @Autowired
     private BitmexProcessingService processingService;
+
+    @Autowired
+    private CandleGenerationService candleGenerationService;
 
 
     @Scheduled(fixedDelay = 60000)
@@ -99,26 +103,37 @@ public class BitmexSchedulingService {
         return session != null && (session.isOpen() || sessionStorage.isConnecting());
     }
 
-    @Scheduled(cron = "* 0/5 * ? * *")
-    public void cleanHistory() {
-        LocalDateTime fiveMinutesBeforeNow = DateTime.getGMTTimeToMinutes().minusMinutes(5);
-        for (Iterator<Map.Entry<LocalDateTime, JSONArray>> it = processingService.getTradesHistory().entrySet().iterator(); it.hasNext(); ) {
-            Map.Entry<LocalDateTime, JSONArray> entry = it.next();
-            if (entry.getKey().isBefore(fiveMinutesBeforeNow)) {
-                it.remove();
-                log.info("Old trades removed!");
-            }
-        }
-    }
+//    @Scheduled(cron = "* 0/5 * ? * *")
+//    public void cleanHistory() {
+//        LocalDateTime fiveMinutesBeforeNow = DateTime.getGMTTimeToMinutes().minusMinutes(5);
+//        for (Iterator<Map.Entry<LocalDateTime, JSONArray>> it = processingService.getTradesHistory().entrySet().iterator(); it.hasNext(); ) {
+//            Map.Entry<LocalDateTime, JSONArray> entry = it.next();
+//            if (entry.getKey().isBefore(fiveMinutesBeforeNow)) {
+//                it.remove();
+//                log.info("Old trades removed!");
+//            }
+//        }
+//    }
 
-    @Scheduled(cron = "0 20 * ? * *")
+    @Scheduled(cron = "0 10 17 ? * *")
     public void stopSession() throws IOException {
         sessionStorage.getSession().close();
         log.info("Session closed");
     }
 
-    @Scheduled(cron = "5 * * ? * *")
+//    @Scheduled(cron = "5 * * ? * *")
+//    public void test() {
+//        processingService.getTradeData();
+//    }
+
+    @Scheduled(cron = "10 0/5 * ? * *")
     public void test() {
-        processingService.getTradeData();
+        for (Map.Entry<String, Map<LocalDateTime, Candle>> charts : candleGenerationService.getCharts().entrySet()) {
+            if (charts.getKey().equals("5")) {
+                for (Map.Entry<LocalDateTime, Candle> period : charts.getValue().entrySet()) {
+                    log.info("period = {}; candle = {}", period, period.getValue());
+                }
+            }
+        }
     }
 }

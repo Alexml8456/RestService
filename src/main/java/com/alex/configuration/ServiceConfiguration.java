@@ -19,5 +19,4 @@ public class ServiceConfiguration {
         accountsTaskExecutor.initialize();
         return accountsTaskExecutor;
     }
-
 }
