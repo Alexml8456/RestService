@@ -1,5 +1,6 @@
 package com.alex.services;
 
+import com.alex.model.Candle;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import javax.websocket.DeploymentException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Map;
 import java.util.Optional;
 
 import static java.util.Optional.ofNullable;
@@ -111,7 +113,7 @@ public class BitmexSchedulingService {
 //        }
 //    }
 
-    @Scheduled(cron = "0 58 22 ? * *")
+    @Scheduled(cron = "0 58 16 ? * *")
     public void stopSession() throws IOException {
         sessionStorage.getSession().close();
         log.info("Session closed");
@@ -122,21 +124,19 @@ public class BitmexSchedulingService {
 //        processingService.getTradeData();
 //    }
 
-//    @Scheduled(cron = "10 0/5 * ? * *")
-//    public void test() {
-//        for (Map.Entry<String, Map<LocalDateTime, Candle>> charts : candleGenerationService.getCharts().entrySet()) {
-//            if (charts.getKey().equals("5")) {
-//                for (Map.Entry<LocalDateTime, Candle> period : charts.getValue().entrySet()) {
-//                    log.info("period = {}; candle = {}", period, period.getValue());
-//                }
-//            }
-//        }
-//    }
+    @Scheduled(cron = "20 0/1 * ? * *")
+    public void test() {
+        for (Map.Entry<String, Map<LocalDateTime, Candle>> charts : candleGenerationService.getCharts().entrySet()) {
+            for (Map.Entry<LocalDateTime, Candle> period : charts.getValue().entrySet()) {
+                log.info("period = {}; candle = {}", period, period.getValue());
+            }
+        }
+    }
 
     @Scheduled(cron = "10 0/1 * ? * *")
     public void checkAndClean() {
         candleGenerationService.getCharts().entrySet().stream()
-                .filter(period -> period.getValue().entrySet().size() > 30)
+                .filter(period -> period.getValue().entrySet().size() > 3)
                 .forEach(period -> {
                     LocalDateTime minKey = period.getValue().keySet().stream().min(LocalDateTime::compareTo).get();
                     log.info("Candle for {} / {} is too old. will be deleted", period.getKey(), minKey);
