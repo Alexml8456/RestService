@@ -49,7 +49,7 @@ public class BitmexSchedulingService {
     }
 
 
-    @Scheduled(fixedDelay = 100000000)
+    @Scheduled(fixedDelay = 1000)
     public void reconnect() throws InterruptedException, IOException, DeploymentException {
         if (!isConnected()) {
             Optional<WebSocketConnectionManager> connectionManager = ofNullable(connectionService.getConnectionManager());
@@ -113,34 +113,23 @@ public class BitmexSchedulingService {
 //        }
 //    }
 
-    @Scheduled(cron = "0 58 16 ? * *")
-    public void stopSession() throws IOException {
-        sessionStorage.getSession().close();
-        log.info("Session closed");
-    }
+//    @Scheduled(cron = "0 58 16 ? * *")
+//    public void stopSession() throws IOException {
+//        sessionStorage.getSession().close();
+//        log.info("Session closed");
+//    }
 
 //    @Scheduled(cron = "5 * * ? * *")
 //    public void test() {
 //        processingService.getTradeData();
 //    }
 
-    @Scheduled(cron = "20 0/1 * ? * *")
+    @Scheduled(cron = "20 0/5 * ? * *")
     public void test() {
         for (Map.Entry<String, Map<LocalDateTime, Candle>> charts : candleGenerationService.getCharts().entrySet()) {
             for (Map.Entry<LocalDateTime, Candle> period : charts.getValue().entrySet()) {
-                log.info("period = {}; candle = {}", period, period.getValue());
+                log.info("chart = {}, period = {}; candle = {}", charts.getKey(), period, period.getValue());
             }
         }
-    }
-
-    @Scheduled(cron = "10 0/1 * ? * *")
-    public void checkAndClean() {
-        candleGenerationService.getCharts().entrySet().stream()
-                .filter(period -> period.getValue().entrySet().size() > 3)
-                .forEach(period -> {
-                    LocalDateTime minKey = period.getValue().keySet().stream().min(LocalDateTime::compareTo).get();
-                    log.info("Candle for {} / {} is too old. will be deleted", period.getKey(), minKey);
-                    candleGenerationService.getCharts().get(period.getKey()).remove(minKey);
-                });
     }
 }
