@@ -1,6 +1,7 @@
 package com.alex.services;
 
 import com.alex.model.Candle;
+import com.alex.strategy.WTLB;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +30,8 @@ public class BitmexSchedulingService {
     private BitmexSessionStorage sessionStorage;
     @Autowired
     private BitmexProcessingService processingService;
+    @Autowired
+    private WTLB wtlb;
 
     @Autowired
     private CandleGenerationService candleGenerationService;
@@ -49,7 +52,7 @@ public class BitmexSchedulingService {
     }
 
 
-    @Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 10000000)
     public void reconnect() throws InterruptedException, IOException, DeploymentException {
         if (!isConnected()) {
             Optional<WebSocketConnectionManager> connectionManager = ofNullable(connectionService.getConnectionManager());
@@ -113,23 +116,29 @@ public class BitmexSchedulingService {
 //        }
 //    }
 
-//    @Scheduled(cron = "0 58 16 ? * *")
-//    public void stopSession() throws IOException {
-//        sessionStorage.getSession().close();
-//        log.info("Session closed");
-//    }
+    @Scheduled(cron = "0 50 15 ? * *")
+    public void stopSession() throws IOException {
+        sessionStorage.getSession().close();
+        log.info("Session closed");
+    }
 
 //    @Scheduled(cron = "5 * * ? * *")
 //    public void test() {
 //        processingService.getTradeData();
 //    }
 
-    @Scheduled(cron = "20 0/5 * ? * *")
+    @Scheduled(cron = "05 0/5 * ? * *")
     public void test() {
-        for (Map.Entry<String, Map<LocalDateTime, Candle>> charts : candleGenerationService.getCharts().entrySet()) {
-            for (Map.Entry<LocalDateTime, Candle> period : charts.getValue().entrySet()) {
-                log.info("chart = {}, period = {}; candle = {}", charts.getKey(), period, period.getValue());
+        candleGenerationService.getCharts().forEach((period, candle) -> {
+            if (wtlb.isPeriodAccepted(period)) {
+                //wtlb.check();
+                candleGenerationService.getCharts().get(period).forEach((key, value) -> log.info("Candle = {} / Period = {}", key, value));
             }
-        }
+        });
+//        for (Map.Entry<String, Map<LocalDateTime, Candle>> charts : candleGenerationService.getCharts().entrySet()) {
+//            for (Map.Entry<LocalDateTime, Candle> period : charts.getValue().entrySet()) {
+//                log.info("chart = {}, period = {}; candle = {}", charts.getKey(), period, period.getValue());
+//            }
+//        }
     }
 }
