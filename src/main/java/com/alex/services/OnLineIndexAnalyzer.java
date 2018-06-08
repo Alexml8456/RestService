@@ -27,25 +27,19 @@ public class OnLineIndexAnalyzer {
 
     private EMACalculator emaCalculator = new EMACalculator();
 
-    public BigDecimal processEma(LocalDateTime timeStamp, int length, Map<LocalDateTime, Candle> chartToAnalyze, long timeFrame) {
-        return emaCalculator.calculate(prepareList(timeStamp, length, chartToAnalyze, timeFrame));
+    public BigDecimal processEma(int length, Map<LocalDateTime, Candle> chartToAnalyze) {
+        return emaCalculator.calculate(prepareListTest(length, chartToAnalyze));
     }
 
-    private <T> List<T> prepareList(LocalDateTime timeStamp, int length, Map<LocalDateTime, T> chartToAnalyze, long timeFrame) {
+    private <T> List<T> prepareListTest(int length, Map<LocalDateTime, T> chartToAnalyze) {
         List<CandleWrapper<T>> candles = new ArrayList<>();
         int i = 0;
-        if (chartToAnalyze.size() > length) {
-            while (candles.size() < length) {
-                if (i>400){
-                    break;
-                }
-                LocalDateTime key = timeStamp.minusMinutes(i*timeFrame);
-                Optional.ofNullable(chartToAnalyze.get(key.truncatedTo(ChronoUnit.MINUTES)))
-                        .ifPresent(candle -> candles.add(new CandleWrapper<>(key, candle)));
-                i++;
+        for (Map.Entry<LocalDateTime, T> entry : chartToAnalyze.entrySet()) {
+            if (i > 5) {
+                break;
             }
-        } else {
-            chartToAnalyze.forEach((dateTime, val) -> candles.add(new CandleWrapper<T>(dateTime, val)));
+            candles.add(new CandleWrapper<>(entry.getKey(), entry.getValue()));
+            i++;
         }
         candles.sort(Comparator.comparing(o -> o.timestamp));
         return candles.stream().map(CandleWrapper::getCandle).collect(Collectors.toList());

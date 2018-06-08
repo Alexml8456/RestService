@@ -1,7 +1,6 @@
 package com.alex.services;
 
 import com.alex.model.Candle;
-import com.alex.strategy.WTLB;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,8 +13,10 @@ import javax.websocket.DeploymentException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -31,7 +32,7 @@ public class BitmexSchedulingService {
     @Autowired
     private BitmexProcessingService processingService;
     @Autowired
-    private WTLB wtlb;
+    private AnalyzeProvider analyzeProvider;
 
     @Autowired
     private CandleGenerationService candleGenerationService;
@@ -116,29 +117,30 @@ public class BitmexSchedulingService {
 //        }
 //    }
 
-    @Scheduled(cron = "0 50 15 ? * *")
-    public void stopSession() throws IOException {
-        sessionStorage.getSession().close();
-        log.info("Session closed");
-    }
+//    @Scheduled(cron = "0 50 15 ? * *")
+//    public void stopSession() throws IOException {
+//        sessionStorage.getSession().close();
+//        log.info("Session closed");
+//    }
 
 //    @Scheduled(cron = "5 * * ? * *")
 //    public void test() {
 //        processingService.getTradeData();
 //    }
 
-    @Scheduled(cron = "05 0/5 * ? * *")
+    @Scheduled(cron = "01 0/5 * ? * *")
     public void test() {
         candleGenerationService.getCharts().forEach((period, candle) -> {
-            if (wtlb.isPeriodAccepted(period)) {
-                //wtlb.check();
-                candleGenerationService.getCharts().get(period).forEach((key, value) -> log.info("Candle = {} / Period = {}", key, value));
+            Map<LocalDateTime, Candle> candles = new TreeMap<>(Comparator.reverseOrder());
+            candleGenerationService.getCharts().get(period).forEach((key, value) ->
+                    candles.put(key, value));
+            for (Map.Entry<LocalDateTime, Candle> entry : candles.entrySet()) {
+                log.info("Period = {} / Key = {} / Value = {}", period, entry.getKey(), entry.getValue());
             }
+
+            analyzeProvider.processTrading(period, candles);
         });
-//        for (Map.Entry<String, Map<LocalDateTime, Candle>> charts : candleGenerationService.getCharts().entrySet()) {
-//            for (Map.Entry<LocalDateTime, Candle> period : charts.getValue().entrySet()) {
-//                log.info("chart = {}, period = {}; candle = {}", charts.getKey(), period, period.getValue());
-//            }
-//        }
     }
+
+
 }
