@@ -35,7 +35,7 @@ public class OnLineIndexAnalyzer {
         List<CandleWrapper<T>> candles = new ArrayList<>();
         int i = 0;
         for (Map.Entry<LocalDateTime, T> entry : chartToAnalyze.entrySet()) {
-            if (i > 5) {
+            if (i > length) {
                 break;
             }
             candles.add(new CandleWrapper<>(entry.getKey(), entry.getValue()));

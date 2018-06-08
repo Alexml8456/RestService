@@ -33,7 +33,7 @@ public class WTLB {
             BigDecimal ema5 = null;
 
             try {
-                ema5 = indexAnalyzer.processEma(5, candles);
+                ema5 = indexAnalyzer.processEma(6, candles);
 
             } catch (Exception e) {
                 log.error("No candles available for WTLB");
