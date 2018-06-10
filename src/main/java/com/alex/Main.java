@@ -1,20 +1,28 @@
 package com.alex;
 
-import com.alex.utils.DateTime;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 public class Main {
     public static void main(String[] args) {
-        StringBuilder builder = new StringBuilder();
-        String test = "https://cryptosignaller.net/";
-        builder.append(String.valueOf(test.substring(8).charAt(0)).toUpperCase());
-        builder.append(test.substring(9).split("\\.")[0]);
-        System.out.println(builder.toString());
+        List<Double> candles = new ArrayList<>(Arrays.asList(7631.5,7635.0,7631.0,7627.5,7631.0,7631.5,7625.5,7629.5,7623.5,7623.5));
+        System.out.println(candles);
+        System.out.println(calculate(candles));
+    }
+
+
+    public static double calculate(List<Double> prices) {
+        int lastBar = prices.size() - 1;
+        double alpha = 2. / (prices.size() / 2 + 1.);
+        int firstBar = lastBar - 2 * prices.size() / 2 + 1;
+        double ema = prices.get(firstBar);
+
+        for (int bar = firstBar; bar <= lastBar; bar++) {
+            double barClose = prices.get(bar);
+            ema += (barClose - ema) * alpha;
+        }
+
+        return ema;
     }
 }

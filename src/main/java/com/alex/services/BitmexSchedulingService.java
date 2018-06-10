@@ -128,15 +128,20 @@ public class BitmexSchedulingService {
 //        processingService.getTradeData();
 //    }
 
-    @Scheduled(cron = "01 0/5 * ? * *")
+    @Scheduled(cron = "0 0/5 * ? * *")
     public void test() {
         candleGenerationService.getCharts().forEach((period, candle) -> {
             Map<LocalDateTime, Candle> candles = new TreeMap<>(Comparator.reverseOrder());
             candleGenerationService.getCharts().get(period).forEach((key, value) ->
                     candles.put(key, value));
-            for (Map.Entry<LocalDateTime, Candle> entry : candles.entrySet()) {
-                log.info("Period = {} / Key = {} / Value = {}", period, entry.getKey(), entry.getValue());
-            }
+//            int i=0;
+//            for (Map.Entry<LocalDateTime, Candle> entry : candles.entrySet()) {
+//                if (i>10){
+//                    break;
+//                }
+//                log.info("Period = {} / Key = {} / Value = {}", period, entry.getKey(), entry.getValue());
+//                i++;
+//            }
 
             analyzeProvider.processTrading(period, candles);
         });

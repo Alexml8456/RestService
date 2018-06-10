@@ -10,8 +10,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -28,14 +30,14 @@ public class OnLineIndexAnalyzer {
     private EMACalculator emaCalculator = new EMACalculator();
 
     public BigDecimal processEma(int length, Map<LocalDateTime, Candle> chartToAnalyze) {
-        return emaCalculator.calculate(prepareListTest(length, chartToAnalyze));
+        return emaCalculator.calculateHlc(prepareListTest(length, chartToAnalyze));
     }
 
     private <T> List<T> prepareListTest(int length, Map<LocalDateTime, T> chartToAnalyze) {
         List<CandleWrapper<T>> candles = new ArrayList<>();
         int i = 0;
         for (Map.Entry<LocalDateTime, T> entry : chartToAnalyze.entrySet()) {
-            if (i > length) {
+            if (i >= length) {
                 break;
             }
             candles.add(new CandleWrapper<>(entry.getKey(), entry.getValue()));

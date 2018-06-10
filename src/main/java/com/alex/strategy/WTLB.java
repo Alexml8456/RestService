@@ -8,32 +8,29 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
 @Service
 public class WTLB {
-    private static final int INVESTIGATION_PERIOD = 8;
+    private static final int INVESTIGATION_PERIOD = 10;
     private static final List<String> acceptingPeriods = Arrays.asList("5");
     private OnLineIndexAnalyzer indexAnalyzer;
 
     public void check(String period, Map<LocalDateTime, Candle> candles) {
         log.info("EMAStrategy start {}", LocalDateTime.now());
 
-        if (candles.size() < INVESTIGATION_PERIOD) {
+        if (candles.size() < INVESTIGATION_PERIOD * 2) {
             log.info("Not enough candles to calculate");
             log.info("EMAStrategy end {}", LocalDateTime.now());
         } else {
             BigDecimal ema5 = null;
 
             try {
-                ema5 = indexAnalyzer.processEma(6, candles);
+                ema5 = indexAnalyzer.processEma(INVESTIGATION_PERIOD * 2, candles);
 
             } catch (Exception e) {
                 log.error("No candles available for WTLB");
