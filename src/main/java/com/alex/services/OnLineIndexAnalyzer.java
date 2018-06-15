@@ -30,10 +30,10 @@ public class OnLineIndexAnalyzer {
     private EMACalculator emaCalculator = new EMACalculator();
 
     public BigDecimal processEma(int length, Map<LocalDateTime, Candle> chartToAnalyze) {
-        return emaCalculator.calculateHlc(prepareListTest(length, chartToAnalyze));
+        return emaCalculator.calculateHlc(prepareList(length, chartToAnalyze));
     }
 
-    private <T> List<T> prepareListTest(int length, Map<LocalDateTime, T> chartToAnalyze) {
+    private <T> List<T> prepareList(int length, Map<LocalDateTime, T> chartToAnalyze) {
         List<CandleWrapper<T>> candles = new ArrayList<>();
         int i = 0;
         for (Map.Entry<LocalDateTime, T> entry : chartToAnalyze.entrySet()) {
