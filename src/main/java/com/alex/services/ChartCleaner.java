@@ -16,6 +16,8 @@ public class ChartCleaner {
     private CandleGenerationService candleGenerationService;
     @Value("${candles.depth}")
     private long candleDepth;
+    @Autowired
+    private Calculations calculations;
 
 
     @Scheduled(fixedDelay = 10000)
@@ -26,6 +28,16 @@ public class ChartCleaner {
                     LocalDateTime minKey = period.getValue().keySet().stream().min(LocalDateTime::compareTo).get();
                     log.info("Candle for period {} / with timestamp {} is too old. will be deleted", period.getKey(), minKey);
                     candleGenerationService.getCharts().get(period.getKey()).remove(minKey);
+                });
+    }
+
+    @Scheduled(fixedDelay = 10000)
+    public void cleanEma() {
+        calculations.getEma().entrySet().stream()
+                .filter(period -> period.getValue().size() > 10)
+                .forEach(period -> {
+                    log.info("EMA value {} for period {} is too old. will be deleted", period.getValue().get(0), period.getKey());
+                    calculations.getEma().get(period.getKey()).remove(0);
                 });
     }
 }

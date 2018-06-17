@@ -1,19 +1,25 @@
 package com.alex;
 
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Main {
     public static void main(String[] args) {
-        Map<String, List<BigDecimal>> map = new HashMap<>();
-        map.putIfAbsent("5", new ArrayList<>());
-        map.putIfAbsent("1", new ArrayList<>());
-        map.get("5").add(BigDecimal.valueOf(1.234234));
-        map.get("5").add(BigDecimal.valueOf(5.231233));
-        map.get("1").add(BigDecimal.valueOf(9.231233));
+        Map<String, List<BigDecimal>> map = new ConcurrentSkipListMap<>();
+        map.putIfAbsent("5", new ArrayList(Arrays.asList(BigDecimal.valueOf(6542.661082716451))));
+        map.get("5").add(BigDecimal.valueOf(6541.695045532398));
+        map.get("5").add(BigDecimal.valueOf(6538.528783673802));
+        map.get("5").add(BigDecimal.valueOf(6535.795910140757));
+        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
+        //map.get("5").remove(0);
 
-        System.out.println(map.get("5").toString());
-        System.out.println(map.get("1").toString());
+        for (int i = map.get("5").size()-5; i < map.get("5").size(); i++) {
+            System.out.println(map.get("5").get(i));
+        }
+        //System.out.println(map.get("5").get(3));
     }
 }

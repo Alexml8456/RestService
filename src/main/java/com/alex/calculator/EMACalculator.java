@@ -54,4 +54,25 @@ public class EMACalculator {
 
         return BigDecimal.valueOf(ema);
     }
+
+    public BigDecimal calculateD(List<Candle> prices, List<BigDecimal> ema) {
+        int lastBar = prices.size() - 1;
+        double alpha = 2. / (prices.size() / 2 + 1.);
+        int firstBar = lastBar - 2 * prices.size() / 2 + 1;
+        double high = prices.get(firstBar).getHigh().doubleValue();
+        double low = prices.get(firstBar).getLow().doubleValue();
+        double close = prices.get(firstBar).getClose().doubleValue();
+        double hlc = (high + low + close) / 3;
+        double d = Math.abs(hlc - ema.get(0).doubleValue());
+
+        for (int bar = firstBar; bar <= lastBar; bar++) {
+            double barHigh = prices.get(bar).getHigh().doubleValue();
+            double barLow = prices.get(bar).getLow().doubleValue();
+            double barClose = prices.get(bar).getClose().doubleValue();
+            double barHlc3 = (barHigh + barLow + barClose) / 3;
+            d += (barHlc3 - d) * alpha;
+        }
+
+        return BigDecimal.valueOf(d);
+    }
 }

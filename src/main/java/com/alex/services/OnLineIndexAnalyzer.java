@@ -33,6 +33,7 @@ public class OnLineIndexAnalyzer {
         return emaCalculator.calculateHlc(prepareList(length, chartToAnalyze));
     }
 
+
     private <T> List<T> prepareList(int length, Map<LocalDateTime, T> chartToAnalyze) {
         List<CandleWrapper<T>> candles = new ArrayList<>();
         int i = 0;
@@ -45,5 +46,13 @@ public class OnLineIndexAnalyzer {
         }
         candles.sort(Comparator.comparing(o -> o.timestamp));
         return candles.stream().map(CandleWrapper::getCandle).collect(Collectors.toList());
+    }
+
+    public List<BigDecimal> prepareEmaList(int investigationPeriod, String period, Map<String, List<BigDecimal>> emaMap) {
+        List<BigDecimal> emaList = new ArrayList<>();
+        for (int i = emaMap.get(period).size() - investigationPeriod; i < emaMap.get(period).size(); i++) {
+            emaList.add(emaMap.get(period).get(i));
+        }
+        return emaList;
     }
 }
