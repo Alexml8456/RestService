@@ -33,6 +33,10 @@ public class OnLineIndexAnalyzer {
         return emaCalculator.calculateHlc(prepareList(length, chartToAnalyze));
     }
 
+    public BigDecimal processEsa(int length, Map<LocalDateTime, Candle> chartToAnalyze, int investigationPeriod, String period, Map<String, List<BigDecimal>> emaMap) {
+        return emaCalculator.calculateD(prepareList(length, chartToAnalyze), prepareEmaList(investigationPeriod, period, emaMap));
+    }
+
 
     private <T> List<T> prepareList(int length, Map<LocalDateTime, T> chartToAnalyze) {
         List<CandleWrapper<T>> candles = new ArrayList<>();

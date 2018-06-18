@@ -34,7 +34,7 @@ public class ChartCleaner {
     @Scheduled(fixedDelay = 10000)
     public void cleanEma() {
         calculations.getEma().entrySet().stream()
-                .filter(period -> period.getValue().size() > 10)
+                .filter(period -> period.getValue().size() > 20)
                 .forEach(period -> {
                     log.info("EMA value {} for period {} is too old. will be deleted", period.getValue().get(0), period.getKey());
                     calculations.getEma().get(period.getKey()).remove(0);

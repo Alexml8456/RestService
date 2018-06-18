@@ -15,11 +15,21 @@ public class Main {
         map.get("5").add(BigDecimal.valueOf(6538.528783673802));
         map.get("5").add(BigDecimal.valueOf(6535.795910140757));
         map.get("5").add(BigDecimal.valueOf(6526.787654695071));
+        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
+        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
+        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
+        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
+        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
         //map.get("5").remove(0);
 
-        for (int i = map.get("5").size()-5; i < map.get("5").size(); i++) {
+        for (int i = map.get("5").size()-10; i < map.get("5").size(); i++) {
             System.out.println(map.get("5").get(i));
         }
-        //System.out.println(map.get("5").get(3));
+
+        int lastBar = map.get("5").size() - 1;
+        int firstBar = lastBar - 2 * map.get("5").size() / 2 + 1;
+
+        System.out.println("Last Bar = "  + lastBar);
+        System.out.println("First Bar = "  + firstBar);
     }
 }

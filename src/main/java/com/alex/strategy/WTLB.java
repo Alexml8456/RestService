@@ -36,6 +36,7 @@ public class WTLB {
             log.info("EMAStrategy end {}", LocalDateTime.now());
         } else {
             BigDecimal ema10 = null;
+            BigDecimal d = null;
 
             try {
                 ema10 = indexAnalyzer.processEma(INVESTIGATION_PERIOD * 2, candles);
@@ -48,12 +49,17 @@ public class WTLB {
             log.info("period={}, ema5={}",
                     period, ema10.setScale(7, BigDecimal.ROUND_HALF_UP));
 
-            calculations.getEma().forEach((time, value) -> {
-                log.info("Period={}, ema array={}", time, calculations.getEma().get(time));
-            });
+            log.info("Period={}, ema array={}", period, calculations.getEma().get(period));
 
-            if (calculations.getEma().get(period).size() >= INVESTIGATION_PERIOD) {
-                log.info("Period = {} and EMA list = {}", period, indexAnalyzer.prepareEmaList(INVESTIGATION_PERIOD, period, calculations.getEma()));
+            if (calculations.getEma().get(period).size() >= INVESTIGATION_PERIOD * 2) {
+                log.info("Period = {} and EMA list = {}", period, indexAnalyzer.prepareEmaList(INVESTIGATION_PERIOD * 2, period, calculations.getEma()));
+                try {
+                    d = indexAnalyzer.processEsa(INVESTIGATION_PERIOD * 2, candles, INVESTIGATION_PERIOD * 2, period, calculations.getEma());
+                } catch (Exception e) {
+                    log.error("No candles available for D");
+                }
+
+                log.info("D = {}", d.setScale(7, BigDecimal.ROUND_HALF_UP));
             }
 
             log.info("EMAStrategy end {}", LocalDateTime.now());
