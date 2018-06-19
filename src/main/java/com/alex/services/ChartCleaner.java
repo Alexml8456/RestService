@@ -34,10 +34,20 @@ public class ChartCleaner {
     @Scheduled(fixedDelay = 10000)
     public void cleanEma() {
         calculations.getEma().entrySet().stream()
-                .filter(period -> period.getValue().size() > 20)
+                .filter(period -> period.getValue().size() > candleDepth)
                 .forEach(period -> {
                     log.info("EMA value {} for period {} is too old. will be deleted", period.getValue().get(0), period.getKey());
                     calculations.getEma().get(period.getKey()).remove(0);
+                });
+    }
+
+    @Scheduled(fixedDelay = 10000)
+    public void cleanD() {
+        calculations.getD().entrySet().stream()
+                .filter(period -> period.getValue().size() > candleDepth)
+                .forEach(period -> {
+                    log.info("D value {} for period {} is too old. will be deleted", period.getValue().get(0), period.getKey());
+                    calculations.getD().get(period.getKey()).remove(0);
                 });
     }
 }

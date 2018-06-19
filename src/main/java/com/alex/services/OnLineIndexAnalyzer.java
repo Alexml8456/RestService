@@ -33,8 +33,12 @@ public class OnLineIndexAnalyzer {
         return emaCalculator.calculateHlc(prepareList(length, chartToAnalyze));
     }
 
-    public BigDecimal processEsa(int length, Map<LocalDateTime, Candle> chartToAnalyze, int investigationPeriod, String period, Map<String, List<BigDecimal>> emaMap) {
-        return emaCalculator.calculateD(prepareList(length, chartToAnalyze), prepareEmaList(investigationPeriod, period, emaMap));
+    public BigDecimal processEsa(int length, Map<LocalDateTime, Candle> chartToAnalyze, String period, Map<String, List<BigDecimal>> emaMap) {
+        return emaCalculator.calculateD(prepareList(length, chartToAnalyze), prepareEmaList(length, period, emaMap));
+    }
+
+    public BigDecimal processTci(int length, Map<LocalDateTime, Candle> chartToAnalyze, String period, Map<String, List<BigDecimal>> emaMap, Map<String, List<BigDecimal>> tciMap) {
+        return emaCalculator.calculateTci(prepareList(length, chartToAnalyze), prepareEmaList(length, period, emaMap), prepareTciList(length, period, tciMap));
     }
 
 
@@ -58,5 +62,13 @@ public class OnLineIndexAnalyzer {
             emaList.add(emaMap.get(period).get(i));
         }
         return emaList;
+    }
+
+    public List<BigDecimal> prepareTciList(int investigationPeriod, String period, Map<String, List<BigDecimal>> tciMap) {
+        List<BigDecimal> tciList = new ArrayList<>();
+        for (int i = tciMap.get(period).size() - investigationPeriod; i < tciMap.get(period).size(); i++) {
+            tciList.add(tciMap.get(period).get(i));
+        }
+        return tciList;
     }
 }

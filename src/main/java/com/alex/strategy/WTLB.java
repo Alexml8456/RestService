@@ -18,7 +18,8 @@ import java.util.Map;
 @AllArgsConstructor
 @Service
 public class WTLB {
-    private static final int INVESTIGATION_PERIOD = 10;
+    private static final int CHANNEL_LENGTH = 10;
+    private static final int AVERAGE_LENGTH = 21;
     private static final List<String> acceptingPeriods = Arrays.asList("5");
 
     @Autowired
@@ -31,15 +32,16 @@ public class WTLB {
     public void check(String period, Map<LocalDateTime, Candle> candles) {
         log.info("EMAStrategy start {}", LocalDateTime.now());
 
-        if (candles.size() < INVESTIGATION_PERIOD * 2) {
+        if (candles.size() < CHANNEL_LENGTH * 2) {
             log.info("Not enough candles to calculate");
             log.info("EMAStrategy end {}", LocalDateTime.now());
         } else {
             BigDecimal ema10 = null;
             BigDecimal d = null;
+            BigDecimal tci = null;
 
             try {
-                ema10 = indexAnalyzer.processEma(INVESTIGATION_PERIOD * 2, candles);
+                ema10 = indexAnalyzer.processEma(CHANNEL_LENGTH * 2, candles);
                 calculations.saveEma(period, ema10.setScale(7, BigDecimal.ROUND_HALF_UP));
 
             } catch (Exception e) {
@@ -51,20 +53,29 @@ public class WTLB {
 
             log.info("Period={}, ema array={}", period, calculations.getEma().get(period));
 
-            if (calculations.getEma().get(period).size() >= INVESTIGATION_PERIOD * 2) {
-                log.info("Period = {} and EMA list = {}", period, indexAnalyzer.prepareEmaList(INVESTIGATION_PERIOD * 2, period, calculations.getEma()));
+            if (calculations.getEma().get(period).size() >= CHANNEL_LENGTH * 2) {
+                log.info("Period = {} and EMA list = {}", period, indexAnalyzer.prepareEmaList(CHANNEL_LENGTH * 2, period, calculations.getEma()));
                 try {
-                    d = indexAnalyzer.processEsa(INVESTIGATION_PERIOD * 2, candles, INVESTIGATION_PERIOD * 2, period, calculations.getEma());
+                    d = indexAnalyzer.processEsa(CHANNEL_LENGTH * 2, candles, period, calculations.getEma());
+                    calculations.saveD(period, d.setScale(7, BigDecimal.ROUND_HALF_UP));
                 } catch (Exception e) {
                     log.error("No candles available for D");
                 }
 
-                log.info("D = {}", d.setScale(7, BigDecimal.ROUND_HALF_UP));
-            }
+                log.info("Period = {}, D = {}", period, d.setScale(7, BigDecimal.ROUND_HALF_UP));
+                log.info("Period = {}, D array = {}", period, calculations.getD().get(period));
 
+                if (calculations.getD().get(period).size() >= AVERAGE_LENGTH * 2) {
+                    try {
+                        tci = indexAnalyzer.processTci(AVERAGE_LENGTH * 2, candles, period, calculations.getEma(), calculations.getD());
+                    } catch (Exception e) {
+                        log.error("No candles available for tci");
+                    }
+                    log.info("Period = {}, TCI  = {}", period, tci.setScale(7, BigDecimal.ROUND_HALF_UP));
+                }
+            }
             log.info("EMAStrategy end {}", LocalDateTime.now());
         }
-
     }
 
     public boolean isPeriodAccepted(String period) {

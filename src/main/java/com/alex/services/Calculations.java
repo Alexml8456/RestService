@@ -21,11 +21,23 @@ public class Calculations {
     @Setter
     public Map<String, List<BigDecimal>> ema = new ConcurrentSkipListMap<>();
 
+    @Getter
+    @Setter
+    public Map<String, List<BigDecimal>> d = new ConcurrentSkipListMap<>();
+
     public void saveEma(String period, BigDecimal emaValue) {
         if (ema.containsKey(period)) {
             ema.get(period).add(emaValue);
         } else {
             ema.putIfAbsent(period, new ArrayList<>(Arrays.asList(emaValue)));
+        }
+    }
+
+    public void saveD(String period, BigDecimal dValue) {
+        if (d.containsKey(period)) {
+            d.get(period).add(dValue);
+        } else {
+            d.putIfAbsent(period, new ArrayList<>(Arrays.asList(dValue)));
         }
     }
 }
