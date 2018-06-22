@@ -1,5 +1,7 @@
 package com.alex;
 
+import com.alex.model.Candle;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,27 +11,28 @@ import java.util.concurrent.ConcurrentSkipListMap;
 
 public class Main {
     public static void main(String[] args) {
-        Map<String, List<BigDecimal>> map = new ConcurrentSkipListMap<>();
-        map.putIfAbsent("5", new ArrayList(Arrays.asList(BigDecimal.valueOf(6542.661082716451))));
-        map.get("5").add(BigDecimal.valueOf(6541.695045532398));
-        map.get("5").add(BigDecimal.valueOf(6538.528783673802));
-        map.get("5").add(BigDecimal.valueOf(6535.795910140757));
-        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
-        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
-        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
-        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
-        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
-        map.get("5").add(BigDecimal.valueOf(6526.787654695071));
-        //map.get("5").remove(0);
+        List<Double> tci = new ArrayList();
+        tci.add(52.0803);
+        tci.add(54.8289);
+        tci.add(56.0346);
+        tci.add(56.0770);
+        tci.add(53.0517);
+        tci.add(51.5994);
+        tci.add(47.0539);
+        tci.add(40.3150);
+        System.out.println(calculate(tci));
+    }
 
-        for (int i = map.get("5").size()-10; i < map.get("5").size(); i++) {
-            System.out.println(map.get("5").get(i));
+    public static BigDecimal calculate(List<Double> prices) {
+        int endBar = prices.size() - 1;
+        int startBar = endBar - prices.size() / 2 + 1;
+        double sma = 0;
+        for (int bar = startBar; bar <= endBar; bar++) {
+            sma += prices.get(bar);
         }
+        double value = sma / (prices.size() / 2);
 
-        int lastBar = map.get("5").size() - 1;
-        int firstBar = lastBar - 2 * map.get("5").size() / 2 + 1;
 
-        System.out.println("Last Bar = "  + lastBar);
-        System.out.println("First Bar = "  + firstBar);
+        return BigDecimal.valueOf(value);
     }
 }

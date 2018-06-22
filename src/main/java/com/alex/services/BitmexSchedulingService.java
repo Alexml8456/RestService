@@ -53,7 +53,7 @@ public class BitmexSchedulingService {
     }
 
 
-    @Scheduled(fixedDelay = 10000000)
+    @Scheduled(fixedDelay = 1000)
     public void reconnect() throws InterruptedException, IOException, DeploymentException {
         if (!isConnected()) {
             Optional<WebSocketConnectionManager> connectionManager = ofNullable(connectionService.getConnectionManager());

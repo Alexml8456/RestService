@@ -42,7 +42,7 @@ public class OnLineIndexAnalyzer {
     }
 
 
-    private <T> List<T> prepareList(int length, Map<LocalDateTime, T> chartToAnalyze) {
+    public <T> List<T> prepareList(int length, Map<LocalDateTime, T> chartToAnalyze) {
         List<CandleWrapper<T>> candles = new ArrayList<>();
         int i = 0;
         for (Map.Entry<LocalDateTime, T> entry : chartToAnalyze.entrySet()) {

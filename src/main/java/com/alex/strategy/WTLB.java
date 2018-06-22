@@ -48,8 +48,9 @@ public class WTLB {
                 log.error("No candles available for WTLB");
             }
 
-            log.info("period={}, ema5={}",
-                    period, ema10.setScale(7, BigDecimal.ROUND_HALF_UP));
+            log.info("Period = {}, Candles = {}", period, indexAnalyzer.prepareList(CHANNEL_LENGTH * 2, candles));
+
+            log.info("period={}, ema10={}", period, ema10.setScale(7, BigDecimal.ROUND_HALF_UP));
 
             log.info("Period={}, ema array={}", period, calculations.getEma().get(period));
 
@@ -71,7 +72,7 @@ public class WTLB {
                     } catch (Exception e) {
                         log.error("No candles available for tci");
                     }
-                    log.info("Period = {}, TCI  = {}", period, tci.setScale(7, BigDecimal.ROUND_HALF_UP));
+                    log.info("Period = {}, TCI = {}", period, tci.setScale(7, BigDecimal.ROUND_HALF_UP));
                 }
             }
             log.info("EMAStrategy end {}", LocalDateTime.now());
