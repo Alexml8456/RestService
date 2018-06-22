@@ -25,7 +25,7 @@ public class Calculations {
     @Setter
     public Map<String, List<BigDecimal>> d = new ConcurrentSkipListMap<>();
 
-    public void saveEma(String period, BigDecimal emaValue) {
+    public void saveEma(String period, BigDecimal emaValue, boolean newKey) {
         if (ema.containsKey(period)) {
             ema.get(period).add(emaValue);
         } else {

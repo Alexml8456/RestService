@@ -35,7 +35,7 @@ public class WTLB {
 
     public void check(String period, Map<LocalDateTime, Candle> candles) {
         log.info("EMAStrategy start {}", LocalDateTime.now());
-        log.info("Period = {}, KeySet = {}",period, candles.keySet());
+        log.info("Period = {}, KeySet = {}", period, candles.keySet());
         log.info("Test first element = {}", candles.keySet().stream().limit(1).iterator().next());
         log.info("Is Key New = {}", isKeyNew(period, candles));
 
@@ -46,10 +46,11 @@ public class WTLB {
             BigDecimal ema10 = null;
             BigDecimal d = null;
             BigDecimal tci = null;
+            boolean isKeyNew = isKeyNew(period, candles);
 
             try {
                 ema10 = indexAnalyzer.processEma(CHANNEL_LENGTH * 2, candles);
-                calculations.saveEma(period, ema10.setScale(7, BigDecimal.ROUND_HALF_UP));
+                calculations.saveEma(period, ema10.setScale(7, BigDecimal.ROUND_HALF_UP), isKeyNew);
 
             } catch (Exception e) {
                 log.error("No candles available for WTLB");
@@ -90,7 +91,7 @@ public class WTLB {
         return acceptingPeriods.contains(period);
     }
 
-    public boolean isKeyNew(String period, Map<LocalDateTime, Candle> candles){
+    public boolean isKeyNew(String period, Map<LocalDateTime, Candle> candles) {
         LocalDateTime currentTime = DateTime.getGMTTimeToMinutes();
         return currentTime.minusMinutes(Long.parseLong(period)).isEqual(candles.keySet().stream().limit(1).iterator().next());
     }
