@@ -53,7 +53,8 @@ public class BitmexSchedulingService {
     }
 
 
-    @Scheduled(fixedDelay = 1000)
+    //@Scheduled(fixedDelay = 1000)
+    @Scheduled(fixedDelay = 1000000000)
     public void reconnect() throws InterruptedException, IOException, DeploymentException {
         if (!isConnected()) {
             Optional<WebSocketConnectionManager> connectionManager = ofNullable(connectionService.getConnectionManager());
@@ -117,11 +118,11 @@ public class BitmexSchedulingService {
 //        }
 //    }
 
-//    @Scheduled(cron = "0 50 15 ? * *")
-//    public void stopSession() throws IOException {
-//        sessionStorage.getSession().close();
-//        log.info("Session closed");
-//    }
+    @Scheduled(cron = "0 11 18 ? * *")
+    public void stopSession() throws IOException {
+        sessionStorage.getSession().close();
+        log.info("Session closed");
+    }
 
 //    @Scheduled(cron = "5 * * ? * *")
 //    public void test() {

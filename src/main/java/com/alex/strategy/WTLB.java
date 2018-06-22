@@ -3,6 +3,7 @@ package com.alex.strategy;
 import com.alex.model.Candle;
 import com.alex.services.Calculations;
 import com.alex.services.OnLineIndexAnalyzer;
+import com.alex.utils.DateTime;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,9 +11,12 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.chrono.ChronoLocalDateTime;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Slf4j
 @AllArgsConstructor
@@ -31,6 +35,9 @@ public class WTLB {
 
     public void check(String period, Map<LocalDateTime, Candle> candles) {
         log.info("EMAStrategy start {}", LocalDateTime.now());
+        log.info("Period = {}, KeySet = {}",period, candles.keySet());
+        log.info("Test first element = {}", candles.keySet().stream().limit(1).iterator().next());
+        log.info("Is Key New = {}", isKeyNew(period, candles));
 
         if (candles.size() < CHANNEL_LENGTH * 2) {
             log.info("Not enough candles to calculate");
@@ -81,5 +88,10 @@ public class WTLB {
 
     public boolean isPeriodAccepted(String period) {
         return acceptingPeriods.contains(period);
+    }
+
+    public boolean isKeyNew(String period, Map<LocalDateTime, Candle> candles){
+        LocalDateTime currentTime = DateTime.getGMTTimeToMinutes();
+        return currentTime.minusMinutes(Long.parseLong(period)).isEqual(candles.keySet().stream().limit(1).iterator().next());
     }
 }
