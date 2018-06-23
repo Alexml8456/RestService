@@ -26,10 +26,16 @@ public class Calculations {
     public Map<String, List<BigDecimal>> d = new ConcurrentSkipListMap<>();
 
     public void saveEma(String period, BigDecimal emaValue, boolean newKey) {
-        if (ema.containsKey(period)) {
-            ema.get(period).add(emaValue);
+        if (newKey) {
+            if (ema.containsKey(period)) {
+                ema.get(period).add(emaValue);
+            } else {
+                ema.putIfAbsent(period, new ArrayList<>(Arrays.asList(emaValue)));
+            }
         } else {
-            ema.putIfAbsent(period, new ArrayList<>(Arrays.asList(emaValue)));
+            log.info("EMA value = {} will be rewriting!", ema.get(period).get(ema.get(period).size() - 1));
+            ema.get(period).remove(ema.get(period).size() - 1);
+            ema.get(period).add(emaValue);
         }
     }
 
