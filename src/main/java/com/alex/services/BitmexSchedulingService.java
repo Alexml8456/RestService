@@ -77,6 +77,7 @@ public class BitmexSchedulingService {
         }
     }
 
+    @Scheduled(cron = "0 0 */6 * * *")
     public void scheduledReconnect() {
         Optional<WebSocketConnectionManager> connectionManager = ofNullable(connectionService.getConnectionManager());
         connectionManager.ifPresent(cm -> {
@@ -118,11 +119,11 @@ public class BitmexSchedulingService {
 //        }
 //    }
 
-    @Scheduled(cron = "0 11 18 ? * *")
-    public void stopSession() throws IOException {
-        sessionStorage.getSession().close();
-        log.info("Session closed");
-    }
+//    @Scheduled(cron = "0 11 18 ? * *")
+//    public void stopSession() throws IOException {
+//        sessionStorage.getSession().close();
+//        log.info("Session closed");
+//    }
 
 //    @Scheduled(cron = "5 * * ? * *")
 //    public void test() {
