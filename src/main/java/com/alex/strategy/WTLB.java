@@ -63,7 +63,7 @@ public class WTLB {
                 log.info("Period = {} and EMA list = {}", period, indexAnalyzer.prepareEmaList(CHANNEL_LENGTH * 2, period, calculations.getEma()));
                 try {
                     d = indexAnalyzer.processEsa(CHANNEL_LENGTH * 2, candles, period, calculations.getEma());
-                    calculations.saveD(period, d.setScale(7, BigDecimal.ROUND_HALF_UP));
+                    calculations.saveD(period, d.setScale(7, BigDecimal.ROUND_HALF_UP), isKeyNew);
                 } catch (Exception e) {
                     log.error("No candles available for D");
                 }

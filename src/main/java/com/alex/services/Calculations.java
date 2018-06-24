@@ -39,11 +39,17 @@ public class Calculations {
         }
     }
 
-    public void saveD(String period, BigDecimal dValue) {
-        if (d.containsKey(period)) {
-            d.get(period).add(dValue);
+    public void saveD(String period, BigDecimal dValue, boolean newKey) {
+        if (newKey) {
+            if (d.containsKey(period)) {
+                d.get(period).add(dValue);
+            } else {
+                d.putIfAbsent(period, new ArrayList<>(Arrays.asList(dValue)));
+            }
         } else {
-            d.putIfAbsent(period, new ArrayList<>(Arrays.asList(dValue)));
+            log.info("D value = {} will be rewriting!", d.get(period).get(d.get(period).size() - 1));
+            d.get(period).remove(d.get(period).size() - 1);
+            d.get(period).add(dValue);
         }
     }
 }
