@@ -50,12 +50,21 @@ public class WTLB {
                 log.info("Period = {} and EMA10={}", period, ema10.setScale(7, BigDecimal.ROUND_HALF_UP));
                 //calculations.saveEma(period, ema10.setScale(7, BigDecimal.ROUND_HALF_UP), isKeyNew);
                 Map<LocalDateTime, BigDecimal> ema10s = new ConcurrentSkipListMap<>();
-                IntStream.range(0, 10).parallel().forEach(i -> ema10s.put(lastCandleTime.minusMinutes(i * timeFrame).truncatedTo(ChronoUnit.MINUTES),
+                IntStream.range(0, 20).parallel().forEach(i -> ema10s.put(lastCandleTime.minusMinutes(i * timeFrame).truncatedTo(ChronoUnit.MINUTES),
                         indexAnalyzer.processEma(lastCandleTime.minusMinutes(i * timeFrame), CHANNEL_LENGTH * 2, candles, timeFrame)));
 
                 for (Map.Entry<LocalDateTime, BigDecimal> entry : ema10s.entrySet()) {
                     log.info("Period = {} || Key = {} || Value = {}", period, entry.getKey(), entry.getValue());
                 }
+
+                Map<LocalDateTime, BigDecimal> ds = new ConcurrentSkipListMap<>();
+                IntStream.range(0, 1).parallel().forEach(i -> ds.put(lastCandleTime.minusMinutes(i * timeFrame).truncatedTo(ChronoUnit.MINUTES),
+                        indexAnalyzer.processEsa(lastCandleTime.minusMinutes(i * timeFrame), CHANNEL_LENGTH * 2, candles, timeFrame, ema10s)));
+
+                for (Map.Entry<LocalDateTime, BigDecimal> entry : ds.entrySet()) {
+                    log.info("Period = {} || Key = {} || Value = {}", period, entry.getKey(), entry.getValue());
+                }
+
             } catch (Exception e) {
                 log.error("No candles available for WTLB");
             }

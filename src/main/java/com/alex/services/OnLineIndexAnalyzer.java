@@ -31,13 +31,15 @@ public class OnLineIndexAnalyzer {
         return emaCalculator.calculateHlc(prepareList(timeStamp, length, chartToAnalyze, timeFrame));
     }
 
-/*    public BigDecimal processEsa(int length, Map<LocalDateTime, Candle> chartToAnalyze, String period, Map<String, List<BigDecimal>> emaMap) {
-        return emaCalculator.calculateD(prepareList(length, chartToAnalyze), prepareEmaList(length, period, emaMap));
+    public BigDecimal processEsa(LocalDateTime timeStamp, int length, Map<LocalDateTime, Candle> chartToAnalyze, long timeFrame, Map<LocalDateTime, BigDecimal> emaMap) {
+        return emaCalculator.calculateD(prepareList(timeStamp, length, chartToAnalyze, timeFrame), prepareList(timeStamp, length, emaMap, timeFrame));
     }
 
+/*
     public BigDecimal processTci(int length, Map<LocalDateTime, Candle> chartToAnalyze, String period, Map<String, List<BigDecimal>> emaMap, Map<String, List<BigDecimal>> tciMap) {
         return emaCalculator.calculateTci(prepareList(length, chartToAnalyze), prepareEmaList(length, period, emaMap), prepareTciList(length, period, tciMap));
-    }*/
+    }
+*/
 
 
 /*    public <T> List<T> prepareList(int length, Map<LocalDateTime, T> chartToAnalyze) {
@@ -59,7 +61,7 @@ public class OnLineIndexAnalyzer {
         int i = 0;
         if (chartToAnalyze.size() > length) {
             while (candles.size() < length) {
-                if (i > 40) {
+                if (i > 400) {
                     break;
                 }
                 LocalDateTime key = timeStamp.minusMinutes(i * timeFrame);
