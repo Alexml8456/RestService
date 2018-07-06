@@ -35,11 +35,9 @@ public class OnLineIndexAnalyzer {
         return emaCalculator.calculateD(prepareList(timeStamp, length, chartToAnalyze, timeFrame), prepareList(timeStamp, length, emaMap, timeFrame));
     }
 
-/*
-    public BigDecimal processTci(int length, Map<LocalDateTime, Candle> chartToAnalyze, String period, Map<String, List<BigDecimal>> emaMap, Map<String, List<BigDecimal>> tciMap) {
-        return emaCalculator.calculateTci(prepareList(length, chartToAnalyze), prepareEmaList(length, period, emaMap), prepareTciList(length, period, tciMap));
+    public BigDecimal processTci(LocalDateTime timeStamp, int length, Map<LocalDateTime, Candle> chartToAnalyze, long timeFrame, Map<LocalDateTime, BigDecimal> emaMap, Map<LocalDateTime, BigDecimal> dMap) {
+        return emaCalculator.calculateTci(prepareList(timeStamp, length, chartToAnalyze, timeFrame), prepareList(timeStamp, length, emaMap, timeFrame), prepareList(timeStamp, length, dMap, timeFrame));
     }
-*/
 
 
 /*    public <T> List<T> prepareList(int length, Map<LocalDateTime, T> chartToAnalyze) {

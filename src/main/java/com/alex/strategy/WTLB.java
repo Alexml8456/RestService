@@ -38,31 +38,40 @@ public class WTLB {
         log.info("Test first element = {}", candles.keySet().stream().limit(1).iterator().next());
         LocalDateTime lastCandleTime = candles.keySet().stream().limit(1).iterator().next();
 
-        if (candles.size() < CHANNEL_LENGTH * 4) {
+        if (candles.size() < CHANNEL_LENGTH * 7) {
             log.info("Not enough candles to calculate");
             log.info("EMAStrategy end {}", LocalDateTime.now());
         } else {
             long timeFrame = Long.parseLong(period);
             BigDecimal ema10;
+            BigDecimal tci;
 
             try {
                 ema10 = indexAnalyzer.processEma(lastCandleTime, CHANNEL_LENGTH * 2, candles, timeFrame);
                 log.info("Period = {} and EMA10={}", period, ema10.setScale(7, BigDecimal.ROUND_HALF_UP));
                 //calculations.saveEma(period, ema10.setScale(7, BigDecimal.ROUND_HALF_UP), isKeyNew);
                 Map<LocalDateTime, BigDecimal> ema10s = new ConcurrentSkipListMap<>();
-                IntStream.range(0, 20).parallel().forEach(i -> ema10s.put(lastCandleTime.minusMinutes(i * timeFrame).truncatedTo(ChronoUnit.MINUTES),
+                IntStream.range(0, 65).parallel().forEach(i -> ema10s.put(lastCandleTime.minusMinutes(i * timeFrame).truncatedTo(ChronoUnit.MINUTES),
                         indexAnalyzer.processEma(lastCandleTime.minusMinutes(i * timeFrame), CHANNEL_LENGTH * 2, candles, timeFrame)));
 
                 for (Map.Entry<LocalDateTime, BigDecimal> entry : ema10s.entrySet()) {
-                    log.info("Period = {} || Key = {} || Value = {}", period, entry.getKey(), entry.getValue());
+                    log.info("EMA - Period = {} || Key = {} || Value = {}", period, entry.getKey(), entry.getValue());
                 }
 
                 Map<LocalDateTime, BigDecimal> ds = new ConcurrentSkipListMap<>();
-                IntStream.range(0, 1).parallel().forEach(i -> ds.put(lastCandleTime.minusMinutes(i * timeFrame).truncatedTo(ChronoUnit.MINUTES),
+                IntStream.range(0, 45).parallel().forEach(i -> ds.put(lastCandleTime.minusMinutes(i * timeFrame).truncatedTo(ChronoUnit.MINUTES),
                         indexAnalyzer.processEsa(lastCandleTime.minusMinutes(i * timeFrame), CHANNEL_LENGTH * 2, candles, timeFrame, ema10s)));
 
                 for (Map.Entry<LocalDateTime, BigDecimal> entry : ds.entrySet()) {
-                    log.info("Period = {} || Key = {} || Value = {}", period, entry.getKey(), entry.getValue());
+                    log.info("D - Period = {} || Key = {} || Value = {}", period, entry.getKey(), entry.getValue());
+                }
+
+                Map<LocalDateTime, BigDecimal> tcis = new ConcurrentSkipListMap<>();
+                IntStream.range(0, 1).parallel().forEach(i -> ds.put(lastCandleTime.minusMinutes(i * timeFrame).truncatedTo(ChronoUnit.MINUTES),
+                        indexAnalyzer.processTci(lastCandleTime.minusMinutes(i * timeFrame), AVERAGE_LENGTH * 2, candles, timeFrame, ema10s, ds)));
+
+                for (Map.Entry<LocalDateTime, BigDecimal> entry : tcis.entrySet()) {
+                    log.info("TCI - Period = {} || Key = {} || Value = {}", period, entry.getKey(), entry.getValue());
                 }
 
             } catch (Exception e) {
