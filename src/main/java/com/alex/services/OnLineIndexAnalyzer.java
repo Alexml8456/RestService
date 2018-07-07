@@ -39,22 +39,7 @@ public class OnLineIndexAnalyzer {
         return emaCalculator.calculateTci(prepareList(timeStamp, length, chartToAnalyze, timeFrame), prepareList(timeStamp, length, emaMap, timeFrame), prepareList(timeStamp, length, dMap, timeFrame));
     }
 
-
-/*    public <T> List<T> prepareList(int length, Map<LocalDateTime, T> chartToAnalyze) {
-        List<CandleWrapper<T>> candles = new ArrayList<>();
-        int i = 0;
-        for (Map.Entry<LocalDateTime, T> entry : chartToAnalyze.entrySet()) {
-            if (i >= length) {
-                break;
-            }
-            candles.add(new CandleWrapper<>(entry.getKey(), entry.getValue()));
-            i++;
-        }
-        candles.sort(Comparator.comparing(o -> o.timestamp));
-        return candles.stream().map(CandleWrapper::getCandle).collect(Collectors.toList());
-    }*/
-
-    public <T> List<T> prepareList(LocalDateTime timeStamp, int length, Map<LocalDateTime, T> chartToAnalyze, long timeFrame) {
+    private  <T> List<T> prepareList(LocalDateTime timeStamp, int length, Map<LocalDateTime, T> chartToAnalyze, long timeFrame) {
         List<CandleWrapper<T>> candles = new ArrayList<>();
         int i = 0;
         if (chartToAnalyze.size() > length) {
@@ -72,21 +57,5 @@ public class OnLineIndexAnalyzer {
         }
         candles.sort(Comparator.comparing(o -> o.timestamp));
         return candles.stream().map(CandleWrapper::getCandle).collect(Collectors.toList());
-    }
-
-    public List<BigDecimal> prepareEmaList(int investigationPeriod, String period, Map<String, List<BigDecimal>> emaMap) {
-        List<BigDecimal> emaList = new ArrayList<>();
-        for (int i = emaMap.get(period).size() - investigationPeriod; i < emaMap.get(period).size(); i++) {
-            emaList.add(emaMap.get(period).get(i));
-        }
-        return emaList;
-    }
-
-    public List<BigDecimal> prepareTciList(int investigationPeriod, String period, Map<String, List<BigDecimal>> tciMap) {
-        List<BigDecimal> tciList = new ArrayList<>();
-        for (int i = tciMap.get(period).size() - investigationPeriod; i < tciMap.get(period).size(); i++) {
-            tciList.add(tciMap.get(period).get(i));
-        }
-        return tciList;
     }
 }
