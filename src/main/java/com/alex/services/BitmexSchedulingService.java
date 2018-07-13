@@ -11,12 +11,14 @@ import org.springframework.web.socket.client.WebSocketConnectionManager;
 
 import javax.websocket.DeploymentException;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -33,6 +35,8 @@ public class BitmexSchedulingService {
     private BitmexProcessingService processingService;
     @Autowired
     private AnalyzeProvider analyzeProvider;
+    @Autowired
+    private TciStorage tciStorage;
 
     @Autowired
     private CandleGenerationService candleGenerationService;
@@ -54,7 +58,6 @@ public class BitmexSchedulingService {
 
 
     @Scheduled(fixedDelay = 1000)
-    //@Scheduled(fixedDelay = 1000000000)
     public void reconnect() throws InterruptedException, IOException, DeploymentException {
         if (!isConnected()) {
             Optional<WebSocketConnectionManager> connectionManager = ofNullable(connectionService.getConnectionManager());
@@ -77,7 +80,7 @@ public class BitmexSchedulingService {
         }
     }
 
-    @Scheduled(cron = "0 0 */6 * * *")
+    @Scheduled(cron = "30 0 0/6 ? * *")
     public void scheduledReconnect() {
         Optional<WebSocketConnectionManager> connectionManager = ofNullable(connectionService.getConnectionManager());
         connectionManager.ifPresent(cm -> {
@@ -107,17 +110,6 @@ public class BitmexSchedulingService {
         return session != null && (session.isOpen() || sessionStorage.isConnecting());
     }
 
-//    @Scheduled(cron = "* 0/5 * ? * *")
-//    public void cleanHistory() {
-//        LocalDateTime fiveMinutesBeforeNow = DateTime.getGMTTimeToMinutes().minusMinutes(5);
-//        for (Iterator<Map.Entry<LocalDateTime, JSONArray>> it = processingService.getTradesHistory().entrySet().iterator(); it.hasNext(); ) {
-//            Map.Entry<LocalDateTime, JSONArray> entry = it.next();
-//            if (entry.getKey().isBefore(fiveMinutesBeforeNow)) {
-//                it.remove();
-//                log.info("Old trades removed!");
-//            }
-//        }
-//    }
 
 //    @Scheduled(cron = "0 11 18 ? * *")
 //    public void stopSession() throws IOException {
@@ -125,29 +117,25 @@ public class BitmexSchedulingService {
 //        log.info("Session closed");
 //    }
 
-//    @Scheduled(cron = "5 * * ? * *")
-//    public void test() {
-//        processingService.getTradeData();
-//    }
-
     @Scheduled(cron = "0 0/5 * ? * *")
     public void test() {
+        tciStorage.getTciValues().clear();
+
         candleGenerationService.getCharts().forEach((period, candle) -> {
             Map<LocalDateTime, Candle> candles = new TreeMap<>(Comparator.reverseOrder());
             candleGenerationService.getCharts().get(period).forEach((key, value) ->
                     candles.put(key, value));
-//            int i=0;
-//            for (Map.Entry<LocalDateTime, Candle> entry : candles.entrySet()) {
-//                if (i>10){
-//                    break;
-//                }
-//                log.info("Period = {} / Key = {} / Value = {}", period, entry.getKey(), entry.getValue());
-//                i++;
-//            }
-
             analyzeProvider.processTrading(period, candles);
         });
+
+        if (!tciStorage.getTciValues().isEmpty()) {
+            if (tciStorage.getTciValues().get("5").entrySet().iterator().next().getValue().doubleValue() < -53 || tciStorage.getTciValues().get("5").entrySet().iterator().next().getValue().doubleValue() > 53) {
+                tciStorage.getTciValues().forEach((period, value) -> {
+                    BigDecimal tci = value.entrySet().iterator().next().getValue();
+                    LocalDateTime key = value.keySet().iterator().next();
+                    log.info("TCI for period - {} with timestamp - {} = {}", period, key, tci);
+                });
+            }
+        }
     }
-
-
 }

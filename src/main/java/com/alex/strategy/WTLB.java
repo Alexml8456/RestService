@@ -2,6 +2,7 @@ package com.alex.strategy;
 
 import com.alex.model.Candle;
 import com.alex.services.OnLineIndexAnalyzer;
+import com.alex.services.TciStorage;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,8 @@ public class WTLB {
 
     @Autowired
     private OnLineIndexAnalyzer indexAnalyzer;
+    @Autowired
+    private TciStorage tciStorage;
 
 
     public void check(String period, Map<LocalDateTime, Candle> candles) {
@@ -36,6 +39,7 @@ public class WTLB {
             log.info("EMAStrategy end {}", LocalDateTime.now());
         } else {
             long timeFrame = Long.parseLong(period);
+            BigDecimal tci;
 
             try {
                 Map<LocalDateTime, BigDecimal> ema10s = new ConcurrentSkipListMap<>();
@@ -55,12 +59,15 @@ public class WTLB {
 //                }
 
                 Map<LocalDateTime, BigDecimal> tcis = new ConcurrentSkipListMap<>();
-                IntStream.range(0, 1).parallel().forEach(i -> tcis.put(lastCandleTime.minusMinutes(i * timeFrame).truncatedTo(ChronoUnit.MINUTES),
-                        indexAnalyzer.processTci(lastCandleTime.minusMinutes(i * timeFrame), AVERAGE_LENGTH * 2, candles, timeFrame, ema10s, ds)));
+                tcis.put(lastCandleTime.truncatedTo(ChronoUnit.MINUTES), indexAnalyzer.processTci(lastCandleTime, AVERAGE_LENGTH * 2, candles, timeFrame, ema10s, ds));
+
+                tci = indexAnalyzer.processTci(lastCandleTime, AVERAGE_LENGTH * 2, candles, timeFrame, ema10s, ds).setScale(2, BigDecimal.ROUND_HALF_UP);
 
                 for (Map.Entry<LocalDateTime, BigDecimal> entry : tcis.entrySet()) {
                     log.info("TCI - Period = {} || Key = {} || Value = {}", period, entry.getKey(), entry.getValue().setScale(7, BigDecimal.ROUND_HALF_UP));
                 }
+
+                tciStorage.saveTci(period, lastCandleTime, tci);
 
             } catch (Exception e) {
                 log.error("No candles available for WTLB");
