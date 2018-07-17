@@ -39,6 +39,9 @@ public class BitmexSchedulingService {
     private TciStorage tciStorage;
 
     @Autowired
+    private TciCondition tciCondition;
+
+    @Autowired
     private CandleGenerationService candleGenerationService;
 
 
@@ -128,14 +131,6 @@ public class BitmexSchedulingService {
             analyzeProvider.processTrading(period, candles);
         });
 
-        if (!tciStorage.getTciValues().isEmpty()) {
-            if (tciStorage.getTciValues().get("5").entrySet().iterator().next().getValue().doubleValue() < -53 || tciStorage.getTciValues().get("5").entrySet().iterator().next().getValue().doubleValue() > 53) {
-                tciStorage.getTciValues().forEach((period, value) -> {
-                    BigDecimal tci = value.entrySet().iterator().next().getValue();
-                    LocalDateTime key = value.keySet().iterator().next();
-                    log.info("TCI for period - {} with timestamp - {} = {}", period, key, tci);
-                });
-            }
-        }
+        tciCondition.checkTciCondition();
     }
 }
