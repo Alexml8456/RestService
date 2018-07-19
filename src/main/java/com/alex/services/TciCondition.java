@@ -7,7 +7,6 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -34,19 +33,20 @@ public class TciCondition {
         if (!tciStorage.getTciValues().isEmpty()) {
 
             if (checkLevel()) {
-                Map<Integer, Map<LocalDateTime, BigDecimal>> tciValues = new TreeMap<>(Comparator.reverseOrder());
-                tciValues.putAll(tciStorage.getTciValues());
+                Map<Integer, Map<LocalDateTime, BigDecimal>> tciValues = new TreeMap<>(tciStorage.getTciValues());
+                BigDecimal closePrice = candleGenerationService.getCharts().get("5").get(tciValues.get(5).keySet().iterator().next()).getClose();
                 StringBuilder builder = new StringBuilder();
                 builder.append("------Wave Trend indicators------\n");
+                builder.append("Candle close price = ");
+                builder.append(closePrice.setScale(2, BigDecimal.ROUND_HALF_UP));
+                builder.append("\n");
                 tciValues.forEach((period, value) -> {
                     BigDecimal tci = value.entrySet().iterator().next().getValue();
                     LocalDateTime key = value.keySet().iterator().next();
                     builder.append("Period = ");
                     builder.append(period);
                     builder.append(" minutes;");
-                    builder.append(" Timestamp = ");
-                    builder.append(key);
-                    builder.append("; Value = ");
+                    builder.append(" Value = ");
                     builder.append(tci);
                     builder.append("\n");
                     log.info("TCI for period - {} with timestamp - {} = {}", period, key, tci);

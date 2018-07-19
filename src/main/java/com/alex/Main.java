@@ -1,10 +1,8 @@
 package com.alex;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.concurrent.ConcurrentSkipListMap;
@@ -27,6 +25,9 @@ public class Main {
         Map<Integer, Map<LocalDateTime, Double>> sortedTciValues = new TreeMap<>(tciValues);
         StringBuilder builder = new StringBuilder();
         builder.append("------Wave Trend indicators--------\n");
+        builder.append("Candle close price = ");
+        builder.append(788.48);
+        builder.append("\n");
         sortedTciValues.forEach((period, value) ->{
             Double tci = value.entrySet().iterator().next().getValue();
             LocalDateTime key = value.keySet().iterator().next();
