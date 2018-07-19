@@ -64,10 +64,10 @@ public class WTLB {
                 tci = indexAnalyzer.processTci(lastCandleTime, AVERAGE_LENGTH * 2, candles, timeFrame, ema10s, ds).setScale(2, BigDecimal.ROUND_HALF_UP);
 
                 for (Map.Entry<LocalDateTime, BigDecimal> entry : tcis.entrySet()) {
-                    log.info("TCI - Period = {} || Key = {} || Value = {}", period, entry.getKey(), entry.getValue().setScale(7, BigDecimal.ROUND_HALF_UP));
+                    log.info("TCI - Period = {} || Key = {} || Value = {}", timeFrame, entry.getKey(), entry.getValue().setScale(7, BigDecimal.ROUND_HALF_UP));
                 }
 
-                tciStorage.saveTci(period, lastCandleTime, tci);
+                tciStorage.saveTci(Math.toIntExact(timeFrame), lastCandleTime, tci);
 
             } catch (Exception e) {
                 log.error("No candles available for WTLB");
