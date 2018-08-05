@@ -11,14 +11,12 @@ import org.springframework.web.socket.client.WebSocketConnectionManager;
 
 import javax.websocket.DeploymentException;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.TreeMap;
-import java.util.concurrent.ConcurrentSkipListMap;
 
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -52,7 +50,7 @@ public class BitmexSchedulingService {
             if (processingService.getLastTradeTime() != null &&
                     processingService.getLastTradeTime().isBefore(fiveMinsBefore)) {
                 log.error("Stale price is found. Reconnect will be initiated");
-                scheduledReconnect();
+                reconnect();
             }
         } catch (Exception e) {
             log.error("Verify Stale Price failed", e);
@@ -83,7 +81,7 @@ public class BitmexSchedulingService {
         }
     }
 
-    @Scheduled(cron = "30 0 0/6 ? * *")
+    //@Scheduled(cron = "30 0 0/6 ? * *")
     public void scheduledReconnect() {
         Optional<WebSocketConnectionManager> connectionManager = ofNullable(connectionService.getConnectionManager());
         connectionManager.ifPresent(cm -> {

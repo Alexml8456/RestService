@@ -28,18 +28,23 @@ public class DataHolder {
     @Getter
     private List<TradesAmounts> tradesAmounts = new ArrayList<>();
 
-    public void addTrades(TradesAmounts tradesAmounts){
+    public void addTrades(TradesAmounts tradesAmounts) {
         this.tradesAmounts.add(tradesAmounts);
     }
 
     @Getter
-    private List<String> subscriptions = new ArrayList<>();
+    private List<String> subscriptions = new ArrayList<String>() {{
+        add("311771410");
+        add("393063353");
+    }};
 
     public void addSubscriber(String subscription) {
-        subscriptions.add(subscription);
+        if (!subscriptions.contains(subscription)) {
+            subscriptions.add(subscription);
+        }
     }
 
-    public void deleteSubscriber(String subscription){
+    public void deleteSubscriber(String subscription) {
         subscriptions.remove(subscription);
     }
 
@@ -65,10 +70,10 @@ public class DataHolder {
 
     }
 
-    public void clearTradesAmounts(){
+    public void clearTradesAmounts() {
         try {
             this.tradesAmounts.clear();
-        } catch (Exception e){
+        } catch (Exception e) {
             log.error("Trade history cannot be cleared");
         }
     }
