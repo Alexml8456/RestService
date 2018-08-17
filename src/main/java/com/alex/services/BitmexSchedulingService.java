@@ -60,8 +60,8 @@ public class BitmexSchedulingService {
 
     @Scheduled(fixedDelay = 1000)
     public void reconnect() throws InterruptedException, IOException, DeploymentException {
-        log.info("Connection status is {}", isConnected());
         if (!isConnected()) {
+            log.info("Connection status is {}", isConnected());
             Optional<WebSocketConnectionManager> connectionManager = ofNullable(connectionService.getConnectionManager());
             log.info("Connection manager status is {}", connectionManager.isPresent());
             if (connectionManager.isPresent()) {
