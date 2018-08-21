@@ -50,7 +50,7 @@ public class BitmexSchedulingService {
             if (processingService.getLastTradeTime() != null &&
                     processingService.getLastTradeTime().isBefore(fiveMinsBefore)) {
                 log.error("Stale price is found. Reconnect will be initiated");
-                reconnect();
+                scheduledReconnect();
             }
         } catch (Exception e) {
             log.error("Verify Stale Price failed", e);
@@ -83,7 +83,7 @@ public class BitmexSchedulingService {
         }
     }
 
-    //@Scheduled(cron = "30 0 0/6 ? * *")
+/*    @Scheduled(cron = "30 0 0/6 ? * *")
     public void scheduledReconnect() {
         Optional<WebSocketConnectionManager> connectionManager = ofNullable(connectionService.getConnectionManager());
         connectionManager.ifPresent(cm -> {
@@ -95,6 +95,27 @@ public class BitmexSchedulingService {
                 log.error("Can't reconnect. " + e.getMessage(), e);
             }
         });
+    }*/
+
+
+    public void scheduledReconnect() throws InterruptedException, IOException, DeploymentException {
+        Optional<WebSocketConnectionManager> connectionManager = ofNullable(connectionService.getConnectionManager());
+        if (connectionManager.isPresent()) {
+            log.warn("Reconnecting");
+            try {
+                if (sessionStorage.getSession() != null && sessionStorage.getSession().isOpen()) {
+                    log.info("Closing session");
+                    sessionStorage.getSession().close();
+                }
+                connectionManager.get().stop();
+                SECONDS.sleep(2);
+                connect();
+            } catch (Exception e) {
+                log.error("Can't reconnect. " + e.getMessage(), e);
+            }
+        } else {
+            connect();
+        }
     }
 
 
