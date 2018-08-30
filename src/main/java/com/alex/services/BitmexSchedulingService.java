@@ -103,10 +103,9 @@ public class BitmexSchedulingService {
         if (connectionManager.isPresent()) {
             log.warn("Reconnecting");
             try {
-                if (sessionStorage.getSession() != null && sessionStorage.getSession().isOpen()) {
-                    log.info("Closing session");
-                    sessionStorage.getSession().close();
-                }
+                log.info("Closing session");
+                sessionStorage.getSession().close();
+                log.info("Stop connection manager");
                 connectionManager.get().stop();
                 SECONDS.sleep(2);
                 connect();
