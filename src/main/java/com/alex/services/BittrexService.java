@@ -29,11 +29,11 @@ public class BittrexService {
     private RestTemplate restTemplate;
 
 
+    //https://bittrex.com/api/v1.1/public/getorderbook/?market=USD-BTC&type=both
     private OrderBook updateOrderBook(String instrument) {
         String resUrl = publicApi.concat("getorderbook/?")
                 .concat("market=").concat(instrument).concat("&")
-                .concat("type=").concat("both").concat("&")
-                .concat("depth=").concat("10");
+                .concat("type=").concat("both");
 
         JSONObject book = new JSONObject(restTemplate.getForObject(resUrl, String.class));
 //        log.info("Updated order book {}", book);
