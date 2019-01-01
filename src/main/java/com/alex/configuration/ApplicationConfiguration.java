@@ -1,6 +1,6 @@
 package com.alex.configuration;
 
-import com.alex.services.OrderService;
+//import com.alex.services.OrderService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableScheduling;

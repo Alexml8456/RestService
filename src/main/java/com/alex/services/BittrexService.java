@@ -40,23 +40,25 @@ public class BittrexService {
         OrderBook orderBook = new OrderBook();
         try {
             JSONArray bids = book.getJSONObject("result").getJSONArray("buy");
-            int depth = bids.length() < 10 ? bids.length() : 10;
+            int depth = bids.length() < 100 ? bids.length() : 100;
             for (int i = 0; i < depth; i++) {
                 JSONObject bid = bids.getJSONObject(i);
                 BigDecimal price = BigDecimal.valueOf(bid.getDouble("Rate"));
                 BigDecimal value = BigDecimal.valueOf(bid.getDouble("Quantity"));
                 BigDecimal total = price.multiply(value);
                 orderBook.getBids().add(new FreeOrder(price, value, total));
+                orderBook.getLargestBuy().add(new FreeOrder(price, value, total));
             }
 
             JSONArray asks = book.getJSONObject("result").getJSONArray("sell");
-            depth = asks.length() < 10 ? asks.length() : 10;
+            depth = asks.length() < 100 ? asks.length() : 100;
             for (int i = 0; i < depth; i++) {
                 JSONObject ask = asks.getJSONObject(i);
                 BigDecimal price = BigDecimal.valueOf(ask.getDouble("Rate"));
                 BigDecimal value = BigDecimal.valueOf(ask.getDouble("Quantity"));
                 BigDecimal total = price.multiply(value);
                 orderBook.getAsks().add(new FreeOrder(price, value, total));
+                orderBook.getLargestSell().add(new FreeOrder(price, value, total));
             }
         } catch (Exception e) {
             log.error("Order book can't be updated");

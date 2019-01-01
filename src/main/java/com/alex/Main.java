@@ -1,19 +1,11 @@
 package com.alex;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class Main {
-
     public static void main(String[] args) {
-        List<String> subscriptions = new ArrayList<String>(){{
-            add("311771410");
-            add("393063353");
-        }};
+        boolean condition;
+        String test = "USD-BTC";
+        condition = test.split("-")[0].contains("USD");
+        System.out.println(condition);
 
-        if (!subscriptions.contains("311771410")){
-            subscriptions.add("311771410");
-        }
-        System.out.println(subscriptions);
     }
 }
