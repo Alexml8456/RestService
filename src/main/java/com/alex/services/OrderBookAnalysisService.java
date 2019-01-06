@@ -30,6 +30,9 @@ public class OrderBookAnalysisService {
         builder.append("Total BTC sell volume: ");
         builder.append(BittrexService.round(asksBTCSum, 2));
         builder.append("\n");
+        builder.append("Buy ratio: ");
+        builder.append(BittrexService.round(bidsBTCSum/asksBTCSum*100-100, 1));
+        builder.append("\n");
         builder.append("Average buy order price: ");
         builder.append(BittrexService.round(bidsSum / bidsBTCSum, 2));
         builder.append("\n");
