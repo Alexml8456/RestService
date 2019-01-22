@@ -1,10 +1,10 @@
 package com.alex;
 
+import com.alex.model.BittrexSummaries;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -28,16 +28,6 @@ public class Main {
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
-    }
-
-    public class BittrexSummaries{
-        private BigDecimal last;
-        private String time;
-
-        public BittrexSummaries(BigDecimal lastValue,String timeValue){
-            last=lastValue;
-            time=timeValue;
         }
     }
 }
