@@ -1,6 +1,5 @@
 package com.alex.services;
 
-import com.alex.model.Candle;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +12,7 @@ import javax.websocket.DeploymentException;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-import java.util.Map;
 import java.util.Optional;
-import java.util.TreeMap;
 
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -35,6 +31,8 @@ public class BitmexSchedulingService {
     private AnalyzeProvider analyzeProvider;
     @Autowired
     private TciStorage tciStorage;
+    @Autowired
+    private BittrexService bittrexService;
 
     @Autowired
     private TciCondition tciCondition;
@@ -140,17 +138,22 @@ public class BitmexSchedulingService {
 //        log.info("Session closed");
 //    }
 
+//    @Scheduled(cron = "0 0/5 * ? * *")
+//    public void checkTci() {
+//        tciStorage.getTciValues().clear();
+//
+//        candleGenerationService.getCharts().forEach((period, candle) -> {
+//            Map<LocalDateTime, Candle> candles = new TreeMap<>(Comparator.reverseOrder());
+//            candleGenerationService.getCharts().get(period).forEach((key, value) ->
+//                    candles.put(key, value));
+//            analyzeProvider.processTrading(period, candles);
+//        });
+//
+//        tciCondition.checkTciCondition();
+//    }
+
     @Scheduled(cron = "0 0/5 * ? * *")
-    public void test() {
-        tciStorage.getTciValues().clear();
-
-        candleGenerationService.getCharts().forEach((period, candle) -> {
-            Map<LocalDateTime, Candle> candles = new TreeMap<>(Comparator.reverseOrder());
-            candleGenerationService.getCharts().get(period).forEach((key, value) ->
-                    candles.put(key, value));
-            analyzeProvider.processTrading(period, candles);
-        });
-
-        tciCondition.checkTciCondition();
+    public void test(){
+        bittrexService.saveSummary();
     }
 }

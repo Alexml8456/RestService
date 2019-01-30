@@ -1,9 +1,6 @@
 package com.alex.services;
 
-import com.alex.model.FreeOrder;
-import com.alex.model.BittrexMarketHistory;
-import com.alex.model.OrderBook;
-import com.alex.model.BittrexTradeQuantity;
+import com.alex.model.*;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -102,6 +99,20 @@ public class BittrexService {
         return marketHistory;
     }
 
+    private JSONArray updateSummary() {
+        String resUrl = publicApi.concat("getmarketsummaries");
+
+        JSONObject summary = new JSONObject(restTemplate.getForObject(resUrl, String.class));
+        JSONArray bittrexSummaries = new JSONArray();
+        try {
+            bittrexSummaries = summary.getJSONArray("result");
+        } catch (Exception e) {
+            log.error("Market summary can't be updated");
+        }
+
+        return bittrexSummaries;
+    }
+
 
     public OrderBook getOrderBook(String ticker) {
         OrderBook book = null;
@@ -137,9 +148,39 @@ public class BittrexService {
         return marketHistory;
     }
 
+    private JSONArray getBittrexSummaries() {
+        JSONArray summaries = null;
+        int counter = 0;
+        while (summaries == null && counter < 5) {
+            try {
+                summaries = updateSummary();
+            } catch (Exception e) {
+                await();
+                counter++;
+            }
+        }
+        if (summaries == null) {
+            throw new IllegalStateException("Bittrex Summary is not reachable");
+        }
+        return summaries;
+    }
+
+    public void saveSummary() {
+        JSONArray summary = getBittrexSummaries();
+        if (summary != null) {
+            for (int i = 0; i < summary.length(); i++) {
+                boolean btcPair = summary.getJSONObject(i).getString("MarketName").split("-")[0].equals("BTC");
+                if (btcPair) {
+                    log.info(summary.getJSONObject(i).getString("MarketName"));
+                }
+            }
+        }
+    }
+
+
     private void await() {
         try {
-            TimeUnit.MILLISECONDS.sleep(500);
+            TimeUnit.MILLISECONDS.sleep(1000);
         } catch (InterruptedException ie) {
             log.error("Exception occurred", ie);
         }

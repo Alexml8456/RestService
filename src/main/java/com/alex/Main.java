@@ -23,7 +23,7 @@ public class Main {
                 boolean btcPair = result.getJSONObject(i).getString("MarketName").split("-")[0].equals("BTC");
                 if (btcPair){
                     System.out.println(result.getJSONObject(i).getString("MarketName"));
-                    Thread.sleep(1000);
+                    //Thread.sleep(1000);
                 }
             }
         } catch (IOException e) {

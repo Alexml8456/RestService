@@ -1,16 +1,9 @@
 package com.alex.model;
 
-import lombok.AllArgsConstructor;
 import lombok.Data;
-
-import java.math.BigDecimal;
+import org.json.JSONArray;
 
 @Data
-@AllArgsConstructor
 public class BittrexSummaries {
-    private String marketName;
-    private BigDecimal lastPrice;
-    private String timestamp;
-    private Integer openBuyOrders;
-    private Integer openSellOrders;
+    private JSONArray bittrexSummary = new JSONArray();
 }

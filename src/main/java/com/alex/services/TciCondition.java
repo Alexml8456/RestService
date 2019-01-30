@@ -1,6 +1,5 @@
 package com.alex.services;
 
-import com.alex.telegram.TelegramNotifierBot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -28,8 +27,8 @@ public class TciCondition {
     @Autowired
     private DataHolder dataHolder;
 
-    @Autowired
-    private TelegramNotifierBot telegramNotifierBot;
+//    @Autowired
+//    private TelegramNotifierBot telegramNotifierBot;
 
 
     @Autowired
@@ -63,7 +62,7 @@ public class TciCondition {
                 builder.append(orderBookAnalysisService.ordersGathering());
 
                 if (dataHolder.getSubscriptions().size() > 0) {
-                    telegramNotifierBot.pushMessage(dataHolder.getSubscriptions(), builder.toString());
+                    //telegramNotifierBot.pushMessage(dataHolder.getSubscriptions(), builder.toString());
                 }
             }
         }
