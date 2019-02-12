@@ -25,6 +25,9 @@ public class BittrexService {
     @Autowired
     private RestTemplate restTemplate;
 
+    @Autowired
+    private BittrexSummary bittrexSummary;
+
 
     //https://bittrex.com/api/v1.1/public/getorderbook/?market=USD-BTC&type=both
     private OrderBook updateOrderBook(String instrument) {
@@ -171,9 +174,22 @@ public class BittrexService {
             for (int i = 0; i < summary.length(); i++) {
                 boolean btcPair = summary.getJSONObject(i).getString("MarketName").split("-")[0].equals("BTC");
                 if (btcPair) {
-                    log.info(summary.getJSONObject(i).getString("MarketName"));
+                    String marketName = summary.getJSONObject(i).getString("MarketName");
+                    BigDecimal dayHPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("High"));
+                    BigDecimal dayLowestPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("Low"));
+                    BigDecimal lastPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("Last"));
+                    BigDecimal baseVolume = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("BaseVolume"));
+                    String date = summary.getJSONObject(i).getString("TimeStamp").substring(0, 10);
+                    Integer openBuyOrders = summary.getJSONObject(i).getInt("OpenBuyOrders");
+                    Integer openSellOrders = summary.getJSONObject(i).getInt("OpenSellOrders");
+                    BigDecimal prevDayPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("PrevDay"));
+                    log.info("Market Name = {}; Last Price = {};High = {}; Low = {}; BaseVolume = {}; Time = {}; Open Buy Orders = {}; Open Sell Orders = {}; Prev Day Price = {}", marketName, lastPrice.toPlainString(), dayHPrice.toPlainString(), dayLowestPrice.toPlainString(), baseVolume.toPlainString(), date, openBuyOrders, openSellOrders, prevDayPrice.toPlainString());
+                    bittrexSummary.saveSummaries(marketName, dayHPrice, dayLowestPrice, lastPrice, baseVolume, date, openBuyOrders, openSellOrders, prevDayPrice);
                 }
             }
+            log.info("Bittrex summary was save!");
+        } else {
+            log.info("Bittrex summary didn't save!");
         }
     }
 
