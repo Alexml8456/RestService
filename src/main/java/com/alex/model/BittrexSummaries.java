@@ -15,6 +15,7 @@ public class BittrexSummaries {
     private BigDecimal dayHighestPrice;
     private BigDecimal dayLowestPrice;
     private BigDecimal lastPrice;
+    private BigDecimal volume;
     private BigDecimal baseVolume;
     private String time;
     private Integer openBuyOrders;
@@ -23,6 +24,7 @@ public class BittrexSummaries {
     private Double totalBuyBTC;
     private Double totalSellBTC;
     private Double buyRatio;
+    private Double buyCoefficient;
     private Double averageBuyPrice;
     private Double averageSellPrice;
 }

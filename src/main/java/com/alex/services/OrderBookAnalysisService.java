@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @Slf4j
 public class OrderBookAnalysisService {
@@ -16,7 +18,7 @@ public class OrderBookAnalysisService {
     @Autowired
     private BittrexService bittrexService;
 
-    public String ordersGathering() {
+    public String ordersGathering(BigDecimal closePrice) {
         StringBuilder builder = new StringBuilder();
         OrderBook orderBook = bittrexService.getOrderBook(instrument);
         if (orderBook != null) {
@@ -33,6 +35,9 @@ public class OrderBookAnalysisService {
             builder.append("\n");
             builder.append("Buy ratio: ");
             builder.append(BittrexService.round(bidsBTCSum / asksBTCSum * 100 - 100, 1));
+            builder.append("\n");
+            builder.append("Buy Coefficient: ");
+            builder.append(BittrexService.round(((asksSum / asksBTCSum - closePrice.doubleValue()) / (closePrice.doubleValue() - bidsSum / bidsBTCSum)) - 1, 2));
             builder.append("\n");
             builder.append("Average buy order price: ");
             builder.append(BittrexService.round(bidsSum / bidsBTCSum, 2));

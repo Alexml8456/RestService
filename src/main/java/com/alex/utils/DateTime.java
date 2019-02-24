@@ -33,4 +33,8 @@ public class DateTime {
     public static LocalDateTime getGMTTimeToMinutes(){
         return LocalDateTime.parse(ConvertTimeToString(getGMTTimeMillis()), DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")).truncatedTo(ChronoUnit.MINUTES);
     }
+
+    public static Integer getCurrentSeconds(){
+        return getGMTTimeMillis().getSecond();
+    }
 }

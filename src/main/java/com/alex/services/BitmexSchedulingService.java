@@ -1,6 +1,6 @@
 package com.alex.services;
 
-import com.alex.model.OrderBook;
+import com.alex.model.Candle;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,10 +11,12 @@ import org.springframework.web.socket.client.WebSocketConnectionManager;
 
 import javax.websocket.DeploymentException;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
+import java.util.Comparator;
+import java.util.Map;
 import java.util.Optional;
+import java.util.TreeMap;
 
 import static java.util.Optional.ofNullable;
 import static java.util.concurrent.TimeUnit.SECONDS;
@@ -40,6 +42,9 @@ public class BitmexSchedulingService {
 
     @Autowired
     private TciCondition tciCondition;
+
+    @Autowired
+    private CSVWriteToFile csvWriteToFile;
 
     @Autowired
     private CandleGenerationService candleGenerationService;
@@ -142,52 +147,34 @@ public class BitmexSchedulingService {
 //        log.info("Session closed");
 //    }
 
-//    @Scheduled(cron = "0 0/5 * ? * *")
-//    public void checkTci() {
-//        tciStorage.getTciValues().clear();
-//
-//        candleGenerationService.getCharts().forEach((period, candle) -> {
-//            Map<LocalDateTime, Candle> candles = new TreeMap<>(Comparator.reverseOrder());
-//            candleGenerationService.getCharts().get(period).forEach((key, value) ->
-//                    candles.put(key, value));
-//            analyzeProvider.processTrading(period, candles);
-//        });
-//
-//        tciCondition.checkTciCondition();
-//    }
+    @Scheduled(cron = "0 0/5 * ? * *")
+    public void checkTci() {
+        tciStorage.getTciValues().clear();
 
-    @Scheduled(cron = "0 40 23 ? * *")
+        candleGenerationService.getCharts().forEach((period, candle) -> {
+            Map<LocalDateTime, Candle> candles = new TreeMap<>(Comparator.reverseOrder());
+            candleGenerationService.getCharts().get(period).forEach((key, value) ->
+                    candles.put(key, value));
+            analyzeProvider.processTrading(period, candles);
+        });
+
+        tciCondition.checkTciCondition();
+    }
+
+    @Scheduled(cron = "30 4 19 ? * *")
     public void saveBittrexSummary() {
         bittrexService.saveSummary();
     }
 
-    @Scheduled(cron = "30 40 23 ? * *")
+    @Scheduled(cron = "30 6 19 ? * *")
     public void updateBittrexSummary() {
-        if (!bittrexSummary.getBittrexSummarys().isEmpty()) {
-            bittrexSummary.getBittrexSummarys().entrySet().forEach(pair -> {
-                try {
-                    Thread.sleep(60000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-                OrderBook orderBook = bittrexService.getOrderBook(pair.getKey());
-                if (orderBook != null) {
-                    double buyBTCSum = BittrexService.round(orderBook.getBids().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum(), 8);
-                    double sellBTCSum = BittrexService.round(orderBook.getAsks().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum(), 8);
-                    double bidsSum = BittrexService.round(orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).sum(), 8);
-                    double asksSum = BittrexService.round(orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).sum(), 8);
-                    double buyRatio = BittrexService.round(buyBTCSum / sellBTCSum * 100 - 100, 1);
-                    double avgBuyPrice = BittrexService.round(buyBTCSum / bidsSum, 8);
-                    double avgSellPrice = BittrexService.round(sellBTCSum / asksSum, 8);
-                    pair.getValue().setTotalBuyBTC(buyBTCSum);
-                    pair.getValue().setTotalSellBTC(sellBTCSum);
-                    pair.getValue().setBuyRatio(buyRatio);
-                    pair.getValue().setAverageBuyPrice(avgBuyPrice);
-                    pair.getValue().setAverageSellPrice(avgSellPrice);
-                    log.info("Market pair = {}; BTC buy volume = {}; BTC sell volume = {}; Buy ratio = {}; Current price = {}; AVG buy order price = {}; AVG sell order price = {}", pair.getKey(), BigDecimal.valueOf(buyBTCSum).toPlainString(), BigDecimal.valueOf(sellBTCSum).toPlainString(), buyRatio, pair.getValue().getLastPrice().toPlainString(), BigDecimal.valueOf(avgBuyPrice).toPlainString(), BigDecimal.valueOf(avgSellPrice).toPlainString());
-                }
-            });
-        }
+        bittrexService.updateSummaryMap();
     }
 
+    //five hour need to update all instruments
+    @Scheduled(cron = "0 50 23 ? * *")
+    public void saveDataToCSV() {
+        csvWriteToFile.wrightToCSV();
+        bittrexSummary.getBittrexSummarys().clear();
+    }
 }

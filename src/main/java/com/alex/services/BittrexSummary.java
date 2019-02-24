@@ -18,7 +18,7 @@ public class BittrexSummary {
     @Setter
     private Map<String, BittrexSummaries> bittrexSummarys = new ConcurrentSkipListMap<>();
 
-    public void saveSummaries(String currencyPair, BigDecimal dayHighestPrice, BigDecimal dayLowestPrice, BigDecimal lastPrice, BigDecimal baseVolume, String time, Integer buyOrders, Integer sellOrders, BigDecimal prevDayPrice) {
-        bittrexSummarys.putIfAbsent(currencyPair, new BittrexSummaries(dayHighestPrice, dayLowestPrice, lastPrice, baseVolume, time, buyOrders, sellOrders, prevDayPrice, null, null, null, null, null));
+    public void saveSummaries(String currencyPair, BigDecimal dayHighestPrice, BigDecimal dayLowestPrice, BigDecimal lastPrice, BigDecimal volume, BigDecimal baseVolume, String time, Integer buyOrders, Integer sellOrders, BigDecimal prevDayPrice) {
+        bittrexSummarys.putIfAbsent(currencyPair, new BittrexSummaries(dayHighestPrice, dayLowestPrice, lastPrice, volume, baseVolume, time, buyOrders, sellOrders, prevDayPrice, null, null, null, null, null, null));
     }
 }

@@ -1,6 +1,9 @@
 package com.alex.services;
 
-import com.alex.model.*;
+import com.alex.model.BittrexMarketHistory;
+import com.alex.model.BittrexTradeQuantity;
+import com.alex.model.FreeOrder;
+import com.alex.model.OrderBook;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
@@ -173,18 +176,20 @@ public class BittrexService {
         if (summary != null) {
             for (int i = 0; i < summary.length(); i++) {
                 boolean btcPair = summary.getJSONObject(i).getString("MarketName").split("-")[0].equals("BTC");
-                if (btcPair) {
+                boolean usdPair = summary.getJSONObject(i).getString("MarketName").split("-")[0].equals("USDT");
+                if (btcPair || usdPair) {
                     String marketName = summary.getJSONObject(i).getString("MarketName");
                     BigDecimal dayHPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("High"));
                     BigDecimal dayLowestPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("Low"));
                     BigDecimal lastPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("Last"));
+                    BigDecimal volume = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("Volume"));
                     BigDecimal baseVolume = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("BaseVolume"));
                     String date = summary.getJSONObject(i).getString("TimeStamp").substring(0, 10);
                     Integer openBuyOrders = summary.getJSONObject(i).getInt("OpenBuyOrders");
                     Integer openSellOrders = summary.getJSONObject(i).getInt("OpenSellOrders");
                     BigDecimal prevDayPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("PrevDay"));
-                    log.info("Market Name = {}; Last Price = {};High = {}; Low = {}; BaseVolume = {}; Time = {}; Open Buy Orders = {}; Open Sell Orders = {}; Prev Day Price = {}", marketName, lastPrice.toPlainString(), dayHPrice.toPlainString(), dayLowestPrice.toPlainString(), baseVolume.toPlainString(), date, openBuyOrders, openSellOrders, prevDayPrice.toPlainString());
-                    bittrexSummary.saveSummaries(marketName, dayHPrice, dayLowestPrice, lastPrice, baseVolume, date, openBuyOrders, openSellOrders, prevDayPrice);
+                    //log.info("Market Name = {}; Last Price = {};High = {}; Low = {}; Volume = {}; BaseVolume = {}; Time = {}; Open Buy Orders = {}; Open Sell Orders = {}; Prev Day Price = {}", marketName, lastPrice.toPlainString(), dayHPrice.toPlainString(), dayLowestPrice.toPlainString(), volume.toPlainString(), baseVolume.toPlainString(), date, openBuyOrders, openSellOrders, prevDayPrice.toPlainString());
+                    bittrexSummary.saveSummaries(marketName, dayHPrice, dayLowestPrice, lastPrice, volume, baseVolume, date, openBuyOrders, openSellOrders, prevDayPrice);
                 }
             }
             log.info("Bittrex summary was save!");
@@ -193,10 +198,65 @@ public class BittrexService {
         }
     }
 
+    public void updateSummaryMap() {
+        if (!bittrexSummary.getBittrexSummarys().isEmpty()) {
+            bittrexSummary.getBittrexSummarys().entrySet().forEach(pair -> {
+                OrderBook orderBook = getOrderBook(pair.getKey());
+                if (orderBook != null) {
+                    boolean btcPair = pair.getKey().split("-")[0].equals("BTC");
+                    boolean usdPair = pair.getKey().split("-")[0].equals("USDT");
+                    if (btcPair) {
+                        double buyBTCSum = BittrexService.round(orderBook.getBids().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum(), 8);
+                        double sellBTCSum = BittrexService.round(orderBook.getAsks().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum(), 8);
+                        double bidsSum = BittrexService.round(orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).sum(), 8);
+                        double asksSum = BittrexService.round(orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).sum(), 8);
+                        double buyRatio = BittrexService.round(buyBTCSum / sellBTCSum * 100 - 100, 1);
+                        double avgBuyPrice = BittrexService.round(buyBTCSum / bidsSum, 8);
+                        double avgSellPrice = BittrexService.round(sellBTCSum / asksSum, 8);
+                        double buyCoefficient = BittrexService.round(((avgSellPrice - pair.getValue().getLastPrice().doubleValue()) / (pair.getValue().getLastPrice().doubleValue() - avgBuyPrice)) - 1, 3);
+                        pair.getValue().setTotalBuyBTC(buyBTCSum);
+                        pair.getValue().setTotalSellBTC(sellBTCSum);
+                        pair.getValue().setBuyRatio(buyRatio);
+                        pair.getValue().setBuyCoefficient(buyCoefficient);
+                        pair.getValue().setAverageBuyPrice(avgBuyPrice);
+                        pair.getValue().setAverageSellPrice(avgSellPrice);
+                        //log.info("Market pair = {}; BTC buy volume = {}; BTC sell volume = {}; Buy ratio = {}; Buy coefficient = {}; Current price = {}; AVG buy order price = {}; AVG sell order price = {}", pair.getKey(), BigDecimal.valueOf(buyBTCSum).toPlainString(), BigDecimal.valueOf(sellBTCSum).toPlainString(), buyRatio, buyCoefficient, pair.getValue().getLastPrice().toPlainString(), BigDecimal.valueOf(avgBuyPrice).toPlainString(), BigDecimal.valueOf(avgSellPrice).toPlainString());
+                    } else if (usdPair) {
+                        double buyBTCSum = BittrexService.round(orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).sum(), 8);
+                        double sellBTCSum = BittrexService.round(orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).sum(), 8);
+                        double bidsSum = BittrexService.round(orderBook.getBids().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum(), 8);
+                        double asksSum = BittrexService.round(orderBook.getAsks().stream().mapToDouble(value -> value.getTotal().doubleValue()).sum(), 8);
+                        double buyRatio = BittrexService.round(buyBTCSum / sellBTCSum * 100 - 100, 1);
+                        double avgBuyPrice = BittrexService.round(bidsSum / buyBTCSum, 8);
+                        double avgSellPrice = BittrexService.round(asksSum / sellBTCSum, 8);
+                        double buyCoefficient = BittrexService.round(((avgSellPrice - pair.getValue().getLastPrice().doubleValue()) / (pair.getValue().getLastPrice().doubleValue() - avgBuyPrice)) - 1, 3);
+                        pair.getValue().setTotalBuyBTC(buyBTCSum);
+                        pair.getValue().setTotalSellBTC(sellBTCSum);
+                        pair.getValue().setBuyRatio(buyRatio);
+                        pair.getValue().setBuyCoefficient(buyCoefficient);
+                        pair.getValue().setAverageBuyPrice(avgBuyPrice);
+                        pair.getValue().setAverageSellPrice(avgSellPrice);
+                        //log.info("Market pair = {}; BTC buy volume = {}; BTC sell volume = {}; Buy ratio = {}; Buy coefficient = {}; Current price = {}; AVG buy order price = {}; AVG sell order price = {}", pair.getKey(), BigDecimal.valueOf(buyBTCSum).toPlainString(), BigDecimal.valueOf(sellBTCSum).toPlainString(), buyRatio, buyCoefficient, pair.getValue().getLastPrice().toPlainString(), BigDecimal.valueOf(avgBuyPrice).toPlainString(), BigDecimal.valueOf(avgSellPrice).toPlainString());
+                    }
+                    int currentSeconds = DateTime.getCurrentSeconds();
+                    updateDelay(currentSeconds);
+                }
+            });
+        }
+    }
+
 
     private void await() {
         try {
-            TimeUnit.MILLISECONDS.sleep(1000);
+            TimeUnit.SECONDS.sleep(1);
+        } catch (InterruptedException ie) {
+            log.error("Exception occurred", ie);
+        }
+    }
+
+    private void updateDelay(Integer seconds) {
+        try {
+            TimeUnit.SECONDS.sleep(90-seconds);
         } catch (InterruptedException ie) {
             log.error("Exception occurred", ie);
         }
