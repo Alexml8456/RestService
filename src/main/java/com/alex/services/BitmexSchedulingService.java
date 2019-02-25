@@ -161,18 +161,21 @@ public class BitmexSchedulingService {
         tciCondition.checkTciCondition();
     }
 
-    @Scheduled(cron = "30 4 19 ? * *")
+    //GMT 19:04
+    @Scheduled(cron = "30 4 2 ? * *")
     public void saveBittrexSummary() {
         bittrexService.saveSummary();
     }
 
-    @Scheduled(cron = "30 6 19 ? * *")
+    //GMT 19:06
+    @Scheduled(cron = "30 6 2 ? * *")
     public void updateBittrexSummary() {
         bittrexService.updateSummaryMap();
     }
 
+    //GMT 23:50
     //five hour need to update all instruments
-    @Scheduled(cron = "0 50 23 ? * *")
+    @Scheduled(cron = "0 50 6 ? * *")
     public void saveDataToCSV() {
         csvWriteToFile.wrightToCSV();
         bittrexSummary.getBittrexSummarys().clear();
