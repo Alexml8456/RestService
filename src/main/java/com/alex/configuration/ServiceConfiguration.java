@@ -14,7 +14,7 @@ public class ServiceConfiguration {
     public ThreadPoolTaskExecutor executor() {
         ThreadPoolTaskExecutor accountsTaskExecutor = new ThreadPoolTaskExecutor();
         accountsTaskExecutor.setCorePoolSize(1);
-        accountsTaskExecutor.setMaxPoolSize(1);
+        accountsTaskExecutor.setMaxPoolSize(5);
         accountsTaskExecutor.setQueueCapacity(1000);
         accountsTaskExecutor.initialize();
         return accountsTaskExecutor;
