@@ -13,8 +13,8 @@ public class ServiceConfiguration {
     @Bean
     public ThreadPoolTaskExecutor executor() {
         ThreadPoolTaskExecutor accountsTaskExecutor = new ThreadPoolTaskExecutor();
-        accountsTaskExecutor.setCorePoolSize(1);
-        accountsTaskExecutor.setMaxPoolSize(5);
+        accountsTaskExecutor.setCorePoolSize(5);
+        accountsTaskExecutor.setMaxPoolSize(10);
         accountsTaskExecutor.setQueueCapacity(1000);
         accountsTaskExecutor.initialize();
         return accountsTaskExecutor;
