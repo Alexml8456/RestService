@@ -4,6 +4,7 @@ import com.alex.model.Candle;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
@@ -169,6 +170,7 @@ public class BitmexSchedulingService {
 
     //GMT 19:06
     @Scheduled(cron = "30 6 14 ? * *")
+    @Async
     public void updateBittrexSummary() {
         bittrexService.updateSummaryMap();
     }
