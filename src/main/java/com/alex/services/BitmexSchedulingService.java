@@ -170,7 +170,6 @@ public class BitmexSchedulingService {
 
     //GMT 19:06
     @Scheduled(cron = "30 6 14 ? * *")
-    @Async
     public void updateBittrexSummary() {
         bittrexService.updateSummaryMap();
     }
