@@ -192,7 +192,7 @@ public class BittrexService {
                     bittrexSummary.saveSummaries(marketName, dayHPrice, dayLowestPrice, lastPrice, volume, baseVolume, date, openBuyOrders, openSellOrders, prevDayPrice);
                 }
             }
-            log.info("Bittrex summary was save!");
+            log.info("Bittrex summary was save! Summary pairs count is = {}", summary.length());
         } else {
             log.info("Bittrex summary didn't save!");
         }
@@ -221,6 +221,7 @@ public class BittrexService {
                         pair.getValue().setAverageBuyPrice(avgBuyPrice);
                         pair.getValue().setAverageSellPrice(avgSellPrice);
                         //log.info("Market pair = {}; BTC buy volume = {}; BTC sell volume = {}; Buy ratio = {}; Buy coefficient = {}; Current price = {}; AVG buy order price = {}; AVG sell order price = {}", pair.getKey(), BigDecimal.valueOf(buyBTCSum).toPlainString(), BigDecimal.valueOf(sellBTCSum).toPlainString(), buyRatio, buyCoefficient, pair.getValue().getLastPrice().toPlainString(), BigDecimal.valueOf(avgBuyPrice).toPlainString(), BigDecimal.valueOf(avgSellPrice).toPlainString());
+                        log.info("Market pair {} was updated!", pair.getKey());
                     } else if (usdPair) {
                         double buyBTCSum = BittrexService.round(orderBook.getBids().stream().mapToDouble(value -> value.getValue().doubleValue()).sum(), 8);
                         double sellBTCSum = BittrexService.round(orderBook.getAsks().stream().mapToDouble(value -> value.getValue().doubleValue()).sum(), 8);
@@ -237,6 +238,7 @@ public class BittrexService {
                         pair.getValue().setAverageBuyPrice(avgBuyPrice);
                         pair.getValue().setAverageSellPrice(avgSellPrice);
                         //log.info("Market pair = {}; BTC buy volume = {}; BTC sell volume = {}; Buy ratio = {}; Buy coefficient = {}; Current price = {}; AVG buy order price = {}; AVG sell order price = {}", pair.getKey(), BigDecimal.valueOf(buyBTCSum).toPlainString(), BigDecimal.valueOf(sellBTCSum).toPlainString(), buyRatio, buyCoefficient, pair.getValue().getLastPrice().toPlainString(), BigDecimal.valueOf(avgBuyPrice).toPlainString(), BigDecimal.valueOf(avgSellPrice).toPlainString());
+                        log.info("Market pair {} was updated!", pair.getKey());
                     }
                     int currentSeconds = DateTime.getCurrentSeconds();
                     updateDelay(currentSeconds);
@@ -256,7 +258,7 @@ public class BittrexService {
 
     private void updateDelay(Integer seconds) {
         try {
-            TimeUnit.SECONDS.sleep(90-seconds);
+            TimeUnit.SECONDS.sleep(90 - seconds);
         } catch (InterruptedException ie) {
             log.error("Exception occurred", ie);
         }
