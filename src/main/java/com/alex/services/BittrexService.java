@@ -7,6 +7,7 @@ import com.alex.model.OrderBook;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONArray;
+import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -175,26 +176,30 @@ public class BittrexService {
         JSONArray summary = getBittrexSummaries();
         if (summary != null) {
             for (int i = 0; i < summary.length(); i++) {
-                boolean btcPair = summary.getJSONObject(i).getString("MarketName").split("-")[0].equals("BTC");
-                boolean usdPair = summary.getJSONObject(i).getString("MarketName").split("-")[0].equals("USDT");
-                if (btcPair || usdPair) {
-                    String marketName = summary.getJSONObject(i).getString("MarketName");
-                    BigDecimal dayHPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("High"));
-                    BigDecimal dayLowestPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("Low"));
-                    BigDecimal lastPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("Last"));
-                    BigDecimal volume = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("Volume"));
-                    BigDecimal baseVolume = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("BaseVolume"));
-                    String date = summary.getJSONObject(i).getString("TimeStamp").substring(0, 10);
-                    Integer openBuyOrders = summary.getJSONObject(i).getInt("OpenBuyOrders");
-                    Integer openSellOrders = summary.getJSONObject(i).getInt("OpenSellOrders");
-                    BigDecimal prevDayPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("PrevDay"));
-                    //log.info("Market Name = {}; Last Price = {};High = {}; Low = {}; Volume = {}; BaseVolume = {}; Time = {}; Open Buy Orders = {}; Open Sell Orders = {}; Prev Day Price = {}", marketName, lastPrice.toPlainString(), dayHPrice.toPlainString(), dayLowestPrice.toPlainString(), volume.toPlainString(), baseVolume.toPlainString(), date, openBuyOrders, openSellOrders, prevDayPrice.toPlainString());
-                    bittrexSummary.saveSummaries(marketName, dayHPrice, dayLowestPrice, lastPrice, volume, baseVolume, date, openBuyOrders, openSellOrders, prevDayPrice);
+                try {
+                    boolean btcPair = summary.getJSONObject(i).getString("MarketName").split("-")[0].equals("BTC");
+                    boolean usdPair = summary.getJSONObject(i).getString("MarketName").split("-")[0].equals("USDT");
+                    if (btcPair || usdPair) {
+                        String marketName = summary.getJSONObject(i).getString("MarketName");
+                        BigDecimal dayHPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("High"));
+                        BigDecimal dayLowestPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("Low"));
+                        BigDecimal lastPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("Last"));
+                        BigDecimal volume = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("Volume"));
+                        BigDecimal baseVolume = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("BaseVolume"));
+                        String date = summary.getJSONObject(i).getString("TimeStamp").substring(0, 10);
+                        Integer openBuyOrders = summary.getJSONObject(i).getInt("OpenBuyOrders");
+                        Integer openSellOrders = summary.getJSONObject(i).getInt("OpenSellOrders");
+                        BigDecimal prevDayPrice = BigDecimal.valueOf(summary.getJSONObject(i).getDouble("PrevDay"));
+                        //log.info("Market Name = {}; Last Price = {};High = {}; Low = {}; Volume = {}; BaseVolume = {}; Time = {}; Open Buy Orders = {}; Open Sell Orders = {}; Prev Day Price = {}", marketName, lastPrice.toPlainString(), dayHPrice.toPlainString(), dayLowestPrice.toPlainString(), volume.toPlainString(), baseVolume.toPlainString(), date, openBuyOrders, openSellOrders, prevDayPrice.toPlainString());
+                        bittrexSummary.saveSummaries(marketName, dayHPrice, dayLowestPrice, lastPrice, volume, baseVolume, date, openBuyOrders, openSellOrders, prevDayPrice);
+                    }
+                } catch (JSONException e) {
+                    log.error("JSON object has wrong format {}", e);
                 }
             }
             log.info("Bittrex summary was save! Summary pairs count is = {}", summary.length());
         } else {
-            log.info("Bittrex summary didn't save!");
+            log.error("Bittrex summary didn't save!");
         }
     }
 
