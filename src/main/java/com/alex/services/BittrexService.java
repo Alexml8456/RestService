@@ -194,7 +194,7 @@ public class BittrexService {
                         bittrexSummary.saveSummaries(marketName, dayHPrice, dayLowestPrice, lastPrice, volume, baseVolume, date, openBuyOrders, openSellOrders, prevDayPrice);
                     }
                 } catch (JSONException e) {
-                    log.error("JSON object has wrong format {}", e);
+                    log.error("JSON object has wrong format. " + e.getMessage(), e);
                 }
             }
             log.info("Bittrex summary was save! Summary pairs count is = {}", summary.length());
