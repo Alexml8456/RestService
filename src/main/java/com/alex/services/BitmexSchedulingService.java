@@ -4,7 +4,6 @@ import com.alex.model.Candle;
 import com.alex.utils.DateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.WebSocketSession;
@@ -163,20 +162,20 @@ public class BitmexSchedulingService {
     }
 
     //GMT 19:04
-    @Scheduled(cron = "30 4 14 ? * *")
+    @Scheduled(cron = "30 4 19 ? * *")
     public void saveBittrexSummary() {
         bittrexService.saveSummary();
     }
 
     //GMT 19:06
-    @Scheduled(cron = "30 6 14 ? * *")
+    @Scheduled(cron = "30 6 19 ? * *")
     public void updateBittrexSummary() {
         bittrexService.updateSummaryMap();
     }
 
     //GMT 23:50
     //five hour need to update all instruments
-    @Scheduled(cron = "0 50 18 ? * *")
+    @Scheduled(cron = "0 50 23 ? * *")
     public void saveDataToCSV() {
         csvWriteToFile.wrightToCSV();
         bittrexSummary.getBittrexSummarys().clear();
